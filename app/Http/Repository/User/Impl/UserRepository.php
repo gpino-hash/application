@@ -2,13 +2,13 @@
 
 namespace App\Http\Repository\User\Impl;
 
-use App\Http\Repository\User\GetUserGiver;
+use App\Http\Repository\User\IGetUser;
 use App\Http\Repository\User\Repository;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class UserRepository extends Repository implements GetUserGiver
+class UserRepository extends Repository implements IGetUser
 {
     protected string $model = User::class;
 

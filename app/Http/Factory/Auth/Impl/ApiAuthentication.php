@@ -3,14 +3,16 @@
 namespace App\Http\Factory\Auth\Impl;
 
 use App\Http\Factory\Auth\Authenticate;
+use App\Http\Factory\Auth\AuthenticateTrait;
 use App\Http\Factory\Auth\GuardName;
-use App\Http\Resources\UserResource;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 use JetBrains\PhpStorm\ArrayShape;
 
 class ApiAuthentication implements Authenticate
 {
+    use AuthenticateTrait;
+
     private array $credentials;
     private bool $remember;
     private GuardName $guard;
@@ -30,11 +32,6 @@ class ApiAuthentication implements Authenticate
     public function handle(): array
     {
         throw_unless(Auth::guard($this->guard->name)->attempt($this->credentials, $this->remember), AuthenticationException::class);
-        $user = Auth::user();
-        return [
-            "access_token" => $user->createToken(Authenticate::TOKEN_NAME)->plainTextToken,
-            "token_type" => "Bearer",
-            "user" => new UserResource($user),
-        ];
+        return $this->response();
     }
 }

@@ -3,9 +3,9 @@
 namespace App\Http\Factory\Auth\Impl;
 
 use App\Http\Factory\Auth\Authenticate;
+use App\Http\Factory\Auth\AuthenticateTrait;
 use App\Http\Factory\Auth\GuardName;
-use App\Http\Repository\User\GetUserByEmailGiver;
-use App\Http\Resources\UserResource;
+use App\Http\Repository\User\IGetUserByEmail;
 use App\Http\UseCase\TypeSocialNetworks;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +15,8 @@ use Laravel\Socialite\Facades\Socialite;
 
 class SocialNetworkAuthentication implements Authenticate
 {
+    use AuthenticateTrait;
+
     private GuardName $guardName;
     private TypeSocialNetworks $typeSocialNetworks;
 
@@ -38,13 +40,9 @@ class SocialNetworkAuthentication implements Authenticate
     public function handle(): array
     {
         $socialMedia = Socialite::driver(Str::lower($this->typeSocialNetworks->name))->stateless()->user();
-        $user = resolve(GetUserByEmailGiver::class)->getUserByEmail($socialMedia->getEmail());
+        $user = resolve(IGetUserByEmail::class)->getUserByEmail($socialMedia->getEmail());
         throw_if(empty($user), AuthenticationException::class);
         Auth::guard($this->guardName->name)->login($user);
-        return [
-            "access_token" => $user->createToken(Authenticate::TOKEN_NAME)->plainTextToken,
-            "token_type" => "Bearer",
-            "user" => new UserResource($user),
-        ];
+        return $this->response();
     }
 }
