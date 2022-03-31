@@ -29,7 +29,6 @@ class AuthRequest extends FormRequest
                 "email"
             ],
             "password" => "required",
-            "type" => "required",
         ];
     }
 }

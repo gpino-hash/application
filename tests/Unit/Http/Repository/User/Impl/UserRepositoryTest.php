@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Http\Repository\User\Impl;
 
+use App\Http\Repository\User\IGetUser;
+use App\Http\Repository\User\IGetUserByEmail;
 use App\Http\Repository\User\Impl\UserRepository;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,5 +38,15 @@ class UserRepositoryTest extends TestCase
 
         $repository = new UserRepository();
         $this->assertEquals($user, $repository->getUserByEmail($user->email));
+    }
+
+    /**
+     * @testdox
+     * @test
+     */
+    public function caseThree()
+    {
+        $this->assertInstanceOf(IGetUserByEmail::class, new UserRepository());
+        $this->assertInstanceOf(IGetUser::class, new UserRepository());
     }
 }
