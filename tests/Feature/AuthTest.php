@@ -6,6 +6,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
+use Laravel\Socialite\Facades\Socialite;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -86,5 +87,18 @@ class AuthTest extends TestCase
         $this->assertEquals(true, $data["success"]);
         $this->assertEquals("Request made successfully.", $data["message"]);
         $this->assertEquals($userResource->toArray(null), $data["data"]["user"]);
+    }
+
+    /**
+     * @testdox Check that the redirect works correctly.
+     * @test
+     */
+    public function caseFive()
+    {
+        $socialNetwork = "google";
+        Socialite::shouldReceive('driver')
+            ->with($socialNetwork)
+            ->once();
+        $this->call(Request::METHOD_GET, "auth/" . $socialNetwork . "/login")->isRedirection();
     }
 }
