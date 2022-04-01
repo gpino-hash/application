@@ -19,13 +19,14 @@ abstract class Repository
      */
     public function create(array $data): Model|Builder
     {
+        $errorMessage = "Error trying to create user.";
         DB::beginTransaction();
         try {
             $user = $this->getModelBuilder()->create($data);
             DB::commit();
         } catch (\Throwable $exception) {
             DB::rollBack();
-            throw new ModelNotFoundException();
+            throw new ModelNotFoundException($errorMessage);
         }
 
         return $user;
