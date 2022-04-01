@@ -11,11 +11,14 @@ use App\Http\UseCase\TypeSocialNetworks;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Socialite\Facades\Socialite;
+use Tests\MockSocialite;
 use Tests\TestCase;
 
 class SocialNetworkAuthenticationTest extends TestCase
 {
+
+    use MockSocialite;
+
     /**
      * @testdox Check that it throws an exception when the registered user is not found.
      * @test
@@ -66,34 +69,5 @@ class SocialNetworkAuthenticationTest extends TestCase
         $this->assertEquals(new UserResource($user), $response["user"]);
         $this->assertEquals("Bearer", $response["token_type"]);
         $this->assertEquals("1234", $response["access_token"]);
-    }
-
-    /**
-     * @param string $email
-     * @return void
-     */
-    public function mockSocialite(string $email = 'test.user' . '@gmail.com'): void
-    {
-        $abstractUser = \Mockery::mock('Laravel\Socialite\Two\User');
-
-        $abstractUser
-            ->shouldReceive('getId')
-            ->andReturn(rand())
-            ->shouldReceive('getName')
-            ->andReturn('test user')
-            ->shouldReceive('getEmail')
-            ->andReturn($email)
-            ->shouldReceive('getAvatar')
-            ->andReturn('https://en.gravatar.com/userimage');
-
-        $provider = \Mockery::mock('Laravel\Socialite\Contracts\Provider');
-        $provider->shouldReceive('stateless')
-            ->andReturnSelf()
-            ->shouldReceive('user')
-            ->andReturn($abstractUser);
-
-        Socialite::shouldReceive('driver')
-            ->with('google')
-            ->andReturn($provider);
     }
 }

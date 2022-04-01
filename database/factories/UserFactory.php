@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Http\UseCase\UserStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -23,6 +24,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
+            'status' => UserStatus::ACTIVE->name
         ];
     }
 
@@ -38,5 +40,20 @@ class UserFactory extends Factory
                 'email_verified_at' => null,
             ];
         });
+    }
+
+    public function inactive(): UserFactory
+    {
+        return $this->state(["status" => UserStatus::INACTIVE->name,]);
+    }
+
+    public function locked(): UserFactory
+    {
+        return $this->state(["status" => UserStatus::LOCKED->name,]);
+    }
+
+    public function slow(): UserFactory
+    {
+        return $this->state(["status" => UserStatus::SLOW->name,]);
     }
 }

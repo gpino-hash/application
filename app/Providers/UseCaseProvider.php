@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Repository\User\ICreateUser;
 use App\Http\Repository\User\IGetUserByEmail;
 use App\Http\Repository\User\Impl\UserRepository;
 use Illuminate\Support\ServiceProvider;
@@ -26,5 +27,6 @@ class UseCaseProvider extends ServiceProvider
     public function boot()
     {
         $this->app->bind(IGetUserByEmail::class, UserRepository::class);
+        $this->app->bind(ICreateUser::class, UserRepository::class);
     }
 }

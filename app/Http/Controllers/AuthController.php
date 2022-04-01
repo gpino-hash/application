@@ -28,7 +28,7 @@ class AuthController extends Controller
     {
         try {
             $api = new ApiAuthentication(GuardName::WEB,
-                $request->only("email", "password"),
+                $request->only("email", "password", "status"),
                 $request->boolean("remember"));
             return $this->success("Request made successfully.", $api->handle());
         } catch (AuthenticationException $authenticationException) {
