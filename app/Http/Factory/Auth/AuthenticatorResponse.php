@@ -6,14 +6,16 @@ use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use JetBrains\PhpStorm\ArrayShape;
 
-trait AuthenticateTrait
+trait AuthenticatorResponse
 {
+    private string $token = "application";
+
     /**
      * @return string
      */
     public function getToken(): string
     {
-        return Auth::user()->createToken(Authenticate::TOKEN_NAME)->plainTextToken;
+        return Auth::user()->createToken($this->token)->plainTextToken;
     }
 
     /**

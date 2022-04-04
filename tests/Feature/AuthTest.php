@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Resources\UserResource;
-use App\Http\UseCase\UserStatus;
+use App\Http\UseCase\Status;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
@@ -16,48 +16,34 @@ class AuthTest extends TestCase
     use DatabaseTransactions, MockSocialite;
 
     /**
-     * @testdox check when the email is misspelled return the email validation.
+     * @testdox check when parameters are null return validation.
      * @test
      */
     public function caseOne()
     {
         $response = $this->json(Request::METHOD_POST, "api/auth/login", [
-            "email" => "test",
-            "password" => "1234",
-        ]);
-
-        $response->assertJsonValidationErrors(["email"]);
-        $response->assertJsonMissingValidationErrors(["password"]);
-    }
-
-    /**
-     * @testdox check when parameters are null return validation.
-     * @test
-     */
-    public function caseTwo()
-    {
-        $response = $this->json(Request::METHOD_POST, "api/auth/login", [
-            "email" => null,
+            "username" => null,
             "password" => null,
+            "status" => "active",
         ]);
 
-        $response->assertJsonValidationErrors(["email", "password"]);
+        $response->assertJsonValidationErrors(["username", "password"]);
     }
 
     /**
      * @testdox Check when the user does not match to start session returns an error
      * @test
      */
-    public function caseThree()
+    public function caseTwo()
     {
         $user = User::factory()->make();
         $credential = [
-            "email" => $user->email,
+            "username" => $user->email,
             "password" => "password",
+            "status" => "active",
         ];
         $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
-        $response->assertJsonMissingValidationErrors(["email", "password"]);
-        $this->assertInvalidCredentials($credential);
+        $response->assertJsonMissingValidationErrors(["username", "password"]);
         $response->assertJsonStructure([
             "success",
             "message",
@@ -70,13 +56,13 @@ class AuthTest extends TestCase
      * @testdox Check when we enter the correct username and password log in.
      * @test
      */
-    public function caseFour()
+    public function caseThree()
     {
         $user = User::factory()->create();
         $credential = [
-            "email" => $user->email,
+            "username" => $user->email,
             "password" => "password",
-            "status" => UserStatus::ACTIVE->name,
+            "status" => Status::ACTIVE->name,
         ];
         $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
         $this->assertAuthenticatedAs($user);
@@ -96,23 +82,53 @@ class AuthTest extends TestCase
      * @testdox Check when the user does not match to start session returns an error
      * @test
      */
-    public function caseFive()
+    public function caseFour()
     {
         $user = User::factory()->inactive()->create();
         $credential = [
-            "email" => $user->email,
+            "username" => $user->email,
             "password" => "password",
-            "status" => UserStatus::ACTIVE->name,
+            "status" => Status::ACTIVE->getName(),
         ];
         $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
-        $response->assertJsonMissingValidationErrors(["email", "password"]);
-        $this->assertInvalidCredentials($credential);
+        $response->assertJsonMissingValidationErrors(["username", "password"]);
+        $this->assertInvalidCredentials([
+            "email" => $user->email,
+            "password" => "password",
+            "status" => Status::ACTIVE->getName(),
+        ]);
         $response->assertJsonStructure([
             "success",
             "message",
         ]);
         $this->assertEquals(false, $response->json("success"));
         $this->assertEquals("Failed to authenticate. User or password is wrong.", $response->json("message"));
+    }
+
+    /**
+     * @testdox Check when we enter the correct username and password log in.
+     * @test
+     */
+    public function caseFive()
+    {
+        $user = User::factory()->create();
+        $credential = [
+            "username" => $user->name,
+            "password" => "password",
+            "status" => Status::ACTIVE->name,
+        ];
+        $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
+        $this->assertAuthenticatedAs($user);
+        $response->assertJsonStructure([
+            "success",
+            "data",
+            "message",
+        ]);
+        $userResource = new UserResource($user);
+        $data = $response->json();
+        $this->assertEquals(true, $data["success"]);
+        $this->assertEquals("Request made successfully.", $data["message"]);
+        $this->assertEquals($userResource->toArray(null), $data["data"]["user"]);
     }
 
     /**

@@ -3,15 +3,17 @@
 namespace Tests\Unit\Http\Factory\Auth\Impl;
 
 use App\Http\Factory\Auth\GuardName;
-use App\Http\Factory\Auth\Impl\ApiAuthentication;
+use App\Http\Factory\Auth\Impl\Api;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
+use Tests\Mock\MockAuthenticate;
 use Tests\TestCase;
 
 class ApiAuthenticationTest extends TestCase
 {
+    use MockAuthenticate;
 
     /**
      * @testdox Check that it throws an exception when the registered user is not found.
@@ -21,11 +23,12 @@ class ApiAuthenticationTest extends TestCase
     {
         $this->expectException(AuthenticationException::class);
         $credentials = [
-            "email" => "test",
+            "username" => "test",
             "password" => "test",
+            "status" => "active",
         ];
-        $api = new ApiAuthentication(GuardName::WEB, $credentials, false);
-        $api->handle();
+        $api = new Api();
+        $api->login(GuardName::WEB, $this->mockLoginData($credentials), false);
     }
 
     /**
@@ -36,12 +39,13 @@ class ApiAuthenticationTest extends TestCase
     {
         $user = User::factory()->make();
         $credentials = [
-            "email" => $user->email,
+            "username" => $user->email,
             "password" => "password",
+            "status" => "active",
         ];
 
-        $api = $this->getMockBuilder(ApiAuthentication::class)
-            ->setConstructorArgs([GuardName::WEB, $credentials, false])
+        $api = $this->getMockBuilder(Api::class)
+            ->disableOriginalConstructor()
             ->onlyMethods(["getToken"])
             ->getMock();
 
@@ -54,10 +58,14 @@ class ApiAuthenticationTest extends TestCase
             ->shouldReceive('user')
             ->andReturn($user)
             ->shouldReceive('attempt')
-            ->with($credentials, false)
+            ->with([
+                "email" => $user->email,
+                "password" => "password",
+                "status" => "active",
+            ], false)
             ->andReturnTrue();
 
-        $response = $api->handle();
+        $response = $api->login(GuardName::WEB, $this->mockLoginData($credentials), false);
 
 
         $this->assertEquals(new UserResource($user), $response["user"]);

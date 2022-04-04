@@ -12,8 +12,11 @@ class Phone extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        "cellphone",
         "phone",
+        "type",
+        "operator",
+        "tags",
+        "status",
         "user_information_id",
     ];
 

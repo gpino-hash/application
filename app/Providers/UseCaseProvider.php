@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
-use App\Http\Repository\User\ICreateUser;
-use App\Http\Repository\User\IGetUserByEmail;
-use App\Http\Repository\User\Impl\UserRepository;
+use App\Http\Factory\Auth\IApi;
+use App\Http\Factory\Auth\Impl\Api;
+use App\Http\Factory\Auth\Impl\SocialNetwork;
+use App\Http\Factory\Auth\ISocialNetwork;
 use Illuminate\Support\ServiceProvider;
 
 class UseCaseProvider extends ServiceProvider
@@ -26,7 +27,7 @@ class UseCaseProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->app->bind(IGetUserByEmail::class, UserRepository::class);
-        $this->app->bind(ICreateUser::class, UserRepository::class);
+        $this->app->bind(ISocialNetwork::class, SocialNetwork::class);
+        $this->app->bind(IApi::class, Api::class);
     }
 }

@@ -4,9 +4,10 @@ namespace Tests\Unit\Http\Factory\Auth\Impl;
 
 
 use App\Http\Factory\Auth\GuardName;
-use App\Http\Factory\Auth\Impl\SocialNetworkAuthentication;
-use App\Http\Repository\User\IGetUserByEmail;
+use App\Http\Factory\Auth\Impl\SocialNetwork;
+use App\Http\Repository\User\IUserByEmail;
 use App\Http\Resources\UserResource;
+use App\Http\UseCase\Status;
 use App\Http\UseCase\TypeSocialNetworks;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
@@ -29,8 +30,8 @@ class SocialNetworkAuthenticationTest extends TestCase
 
         $this->mockSocialite();
 
-        $api = new SocialNetworkAuthentication(GuardName::WEB, TypeSocialNetworks::GOOGLE);
-        $api->handle();
+        $api = new SocialNetwork();
+        $api->login(GuardName::WEB, TypeSocialNetworks::GOOGLE);
     }
 
     /**
@@ -51,20 +52,20 @@ class SocialNetworkAuthenticationTest extends TestCase
             ->with($user)
             ->andReturnTrue();
 
-        $api = $this->getMockBuilder(SocialNetworkAuthentication::class)
-            ->setConstructorArgs([GuardName::WEB, TypeSocialNetworks::GOOGLE])
+        $api = $this->getMockBuilder(SocialNetwork::class)
+            ->disableOriginalConstructor()
             ->onlyMethods(["getToken"])
             ->getMock();
 
         $api->method("getToken")
             ->willReturn("1234");
 
-        $this->mock(IGetUserByEmail::class)
+        $this->mock(IUserByEmail::class)
             ->shouldReceive("getUserByEmail")
-            ->with($user->email)
+            ->with($user->email, Status::ACTIVE)
             ->andReturn($user);
 
-        $response = $api->handle();
+        $response = $api->login(GuardName::WEB, TypeSocialNetworks::GOOGLE);
 
         $this->assertEquals(new UserResource($user), $response["user"]);
         $this->assertEquals("Bearer", $response["token_type"]);

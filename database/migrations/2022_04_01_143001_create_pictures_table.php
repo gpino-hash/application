@@ -15,17 +15,18 @@ return new class extends Migration {
         Schema::create('pictures', function (Blueprint $table) {
             $table->id();
 
-            $table->string("width")->nullable();
-            $table->string("height")->nullable();
             $table->string("title");
-            $table->string("original_url");
-            $table->json("thumbnail_settings")->nullable();
+            $table->text("description");
+            $table->string("url");
+            $table->string("thumbnail_url")->nullable();
+            $table->string("status");
             $table->text("tags")->nullable();
 
             $table->bigInteger("user_information_id");
             $table->foreign("user_information_id")->references("id")->on("user_information");
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

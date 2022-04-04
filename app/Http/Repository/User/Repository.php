@@ -26,6 +26,7 @@ abstract class Repository
             DB::commit();
         } catch (\Throwable $exception) {
             DB::rollBack();
+            logger()->error($exception->getMessage(), [$exception]);
             throw new ModelNotFoundException($errorMessage);
         }
 

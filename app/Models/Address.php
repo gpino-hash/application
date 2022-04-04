@@ -18,6 +18,7 @@ class Address extends Model
         "address",
         "type",
         "tags",
+        "status",
         "user_information_id",
     ];
 

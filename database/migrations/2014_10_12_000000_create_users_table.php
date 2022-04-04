@@ -17,8 +17,9 @@ return new class extends Migration {
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->enum("status", ["active", "inactive", "locked", "slow"]);
+            $table->string('password')->nullable();
+            $table->string("status");
+            $table->text("tags")->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

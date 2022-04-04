@@ -15,13 +15,17 @@ return new class extends Migration {
         Schema::create('phones', function (Blueprint $table) {
             $table->id();
 
-            $table->string("cellphone");
             $table->string("phone");
+            $table->enum("type", ["residential", "personal"]);
+            $table->string("operator");
+            $table->string("status");
+            $table->text("tags")->nullable();
 
             $table->bigInteger("user_information_id");
             $table->foreign("user_information_id")->references("id")->on("user_information");
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

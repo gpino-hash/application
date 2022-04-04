@@ -12,11 +12,10 @@ class Picture extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        "width",
-        "height",
         "title",
-        "original_url",
-        "thumbnail_settings",
+        "description",
+        "url",
+        "thumbnail_url",
         "tags",
     ];
 

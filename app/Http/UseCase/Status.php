@@ -4,7 +4,7 @@ namespace App\Http\UseCase;
 
 use Illuminate\Support\Str;
 
-enum UserStatus
+enum Status
 {
     case ACTIVE;
     case INACTIVE;
@@ -13,9 +13,9 @@ enum UserStatus
 
     /**
      * @param $type
-     * @return UserStatus
+     * @return Status
      */
-    public static function getUserStatus($type): UserStatus
+    public static function getUserStatus($type): Status
     {
         foreach (self::cases() as $case) {
             if ($case->name == Str::upper($type)) {
@@ -24,5 +24,13 @@ enum UserStatus
         }
 
         return self::ACTIVE;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return Str::lower($this->name);
     }
 }

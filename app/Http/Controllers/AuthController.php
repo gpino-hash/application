@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Builder\Auth\UserBuilder;
+use App\Http\Data\Auth\UserData;
 use App\Http\Factory\Auth\GuardName;
-use App\Http\Factory\Auth\Impl\ApiAuthentication;
-use App\Http\Factory\Auth\Impl\SocialNetworkAuthentication;
+use App\Http\Factory\Auth\IApi;
+use App\Http\Factory\Auth\ISocialNetwork;
 use App\Http\Requests\AuthRequest;
 use App\Http\Traits\ResponseWithHttpStatus;
+use App\Http\UseCase\Status;
 use App\Http\UseCase\TypeSocialNetworks;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Laravel\Socialite\Facades\Socialite;
 use Throwable;
@@ -20,6 +24,21 @@ class AuthController extends Controller
 {
     use ResponseWithHttpStatus;
 
+    private IApi $apiAuthentication;
+
+    private ISocialNetwork $socialNetworkAuthentication;
+
+    /**
+     * @param IApi $apiAuthentication
+     * @param ISocialNetwork $socialNetworkAuthentication
+     */
+    public function __construct(IApi           $apiAuthentication,
+                                ISocialNetwork $socialNetworkAuthentication)
+    {
+        $this->apiAuthentication = $apiAuthentication;
+        $this->socialNetworkAuthentication = $socialNetworkAuthentication;
+    }
+
     /**
      * @param AuthRequest $request
      * @return Application|ResponseFactory|Response
@@ -27,10 +46,8 @@ class AuthController extends Controller
     public function login(AuthRequest $request): Application|ResponseFactory|Response
     {
         try {
-            $api = new ApiAuthentication(GuardName::WEB,
-                $request->only("email", "password", "status"),
-                $request->boolean("remember"));
-            return $this->success("Request made successfully.", $api->handle());
+            return $this->success("Request made successfully.",
+                $this->apiAuthentication->login(GuardName::WEB, $this->getLoginData($request), $request->boolean("remember")));
         } catch (AuthenticationException $authenticationException) {
             return $this->failure("Failed to authenticate. User or password is wrong.");
         } catch (Throwable $exception) {
@@ -45,9 +62,8 @@ class AuthController extends Controller
     public function loginWithSocialNetwork(string $socialNetwork): Application|ResponseFactory|Response
     {
         try {
-            $social = new SocialNetworkAuthentication(GuardName::WEB,
-                TypeSocialNetworks::getTypeSocialNetworks($socialNetwork));
-            return $this->success("Request made successfully.", $social->handle());
+            return $this->success("Request made successfully.",
+                $this->socialNetworkAuthentication->login(GuardName::WEB, TypeSocialNetworks::getTypeSocialNetworks($socialNetwork)));
         } catch (AuthenticationException $authenticationException) {
             return $this->failure("Failed to authenticate. User or password is wrong.");
         } catch (Throwable $exception) {
@@ -62,5 +78,18 @@ class AuthController extends Controller
     public function redirect(string $socialNetwork): \Symfony\Component\HttpFoundation\RedirectResponse|RedirectResponse
     {
         return Socialite::driver($socialNetwork)->redirect();
+    }
+
+    /**
+     * @param Request $request
+     * @return UserData
+     */
+    private function getLoginData(Request $request): UserData
+    {
+        return UserBuilder::builder()
+            ->username($request->input("username"))
+            ->password($request->input("password"))
+            ->status(Status::getUserStatus($request->input("status")))
+            ->build();
     }
 }

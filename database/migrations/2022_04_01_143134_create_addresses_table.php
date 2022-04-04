@@ -19,13 +19,15 @@ return new class extends Migration {
             $table->string("state");
             $table->string("city");
             $table->text("address");
-            $table->enum("type", ["house", "work"]);
-            $table->text("tags");
+            $table->enum("type", ["house", "work", "other"]);
+            $table->text("tags")->nullable();
+            $table->string("status");
 
             $table->bigInteger("user_information_id");
             $table->foreign("user_information_id")->references("id")->on("user_information");
 
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
