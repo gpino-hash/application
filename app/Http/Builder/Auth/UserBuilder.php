@@ -4,7 +4,7 @@ namespace App\Http\Builder\Auth;
 
 use App\Http\Builder\Builder;
 use App\Http\Data\Auth\UserData;
-use App\Http\UseCase\Status;
+use App\UseCase\Status;
 use JetBrains\PhpStorm\Pure;
 
 class UserBuilder extends Builder
@@ -14,6 +14,7 @@ class UserBuilder extends Builder
     private $password;
     private $status;
     private $tags;
+    private $name;
 
     #[Pure]
     public static function builder(): UserBuilder
@@ -71,9 +72,19 @@ class UserBuilder extends Builder
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function name(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+
     #[Pure]
     public function build(): UserData
     {
-        return new UserData($this->username, $this->email, $this->password, $this->status, $this->tags);
+        return new UserData($this->username, $this->email, $this->password, $this->status, $this->tags, $this->name);
     }
 }

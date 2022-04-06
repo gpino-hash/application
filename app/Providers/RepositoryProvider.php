@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use App\Http\Repository\User\ICreateUser;
-use App\Http\Repository\User\Impl\UserRepository;
-use App\Http\Repository\User\IUserByEmail;
+use App\Repository\User\ICreateUser;
+use App\Repository\User\Impl\UserRepository;
+use App\Repository\User\IUserByEmail;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryProvider extends ServiceProvider

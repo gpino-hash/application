@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\Http\Repository\User\Impl;
 
-use App\Http\Repository\User\Impl\UserRepository;
-use App\Http\Repository\User\IUser;
-use App\Http\Repository\User\IUserByEmail;
-use App\Http\UseCase\Status;
 use App\Models\User;
+use App\Repository\User\Impl\UserRepository;
+use App\Repository\User\IUser;
+use App\Repository\User\IUserByEmail;
+use App\UseCase\Status;
 use Illuminate\Database\Eloquent\Builder;
 use Tests\TestCase;
 

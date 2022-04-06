@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\Http\Factory\Auth\Impl;
 
-use App\Http\Factory\Auth\GuardName;
-use App\Http\Factory\Auth\Impl\Api;
+use App\Factory\Auth\GuardName;
+use App\Factory\Auth\Impl\Api;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;

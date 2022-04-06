@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Http\Resources\UserResource;
-use App\Http\UseCase\Status;
 use App\Models\User;
+use App\UseCase\Status;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
@@ -141,7 +141,7 @@ class AuthTest extends TestCase
         Socialite::shouldReceive('driver')
             ->with($socialNetwork)
             ->once();
-        $this->call(Request::METHOD_GET, "auth/" . $socialNetwork . "/login")->isRedirection();
+        $this->call(Request::METHOD_GET, "auth/" . $socialNetwork . "/redirect")->isRedirection();
     }
 
     /**
@@ -152,7 +152,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
         $this->mockSocialite($user->email);
-        $response = $this->json(Request::METHOD_GET, "api/auth/login/google/callback");
+        $response = $this->json(Request::METHOD_GET, "api/auth/google/callback");
         $this->assertAuthenticatedAs($user);
         $response->assertJsonStructure([
             "success",

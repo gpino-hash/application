@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Factory\Auth;
+namespace App\Factory\Auth;
 
 enum GuardName
 {

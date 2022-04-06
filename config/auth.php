@@ -14,7 +14,7 @@ return [
     */
 
     'defaults' => [
-        'guard' => \App\Http\Factory\Auth\GuardName::WEB->name,
+        'guard' => \App\Factory\Auth\GuardName::WEB->name,
         'passwords' => 'users',
     ],
 
@@ -36,7 +36,7 @@ return [
     */
 
     'guards' => [
-        \App\Http\Factory\Auth\GuardName::WEB->name => [
+        \App\Factory\Auth\GuardName::WEB->name => [
             'driver' => 'session',
             'provider' => 'users',
         ],

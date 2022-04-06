@@ -4,7 +4,7 @@ namespace Tests\Mock;
 
 use App\Http\Builder\Auth\UserBuilder;
 use App\Http\Data\Auth\UserData;
-use App\Http\UseCase\Status;
+use App\UseCase\Status;
 
 trait MockAuthenticate
 {

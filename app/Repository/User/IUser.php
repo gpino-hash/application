@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Repository\User;
+namespace App\Repository\User;
 
 interface IUser extends IUserByEmail, ICreateUser
 {

@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Http\Factory\Auth\IApi;
-use App\Http\Factory\Auth\Impl\Api;
-use App\Http\Factory\Auth\Impl\SocialNetwork;
-use App\Http\Factory\Auth\ISocialNetwork;
+use App\Factory\Auth\IApi;
+use App\Factory\Auth\Impl\Api;
+use App\Factory\Auth\Impl\SocialNetwork;
+use App\Factory\Auth\ISocialNetwork;
 use Illuminate\Support\ServiceProvider;
 
 class UseCaseProvider extends ServiceProvider

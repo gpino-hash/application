@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Http\UseCase\Status;
+use App\UseCase\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

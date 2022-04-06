@@ -13,4 +13,4 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get("/auth/{social_network}/login", [\App\Http\Controllers\AuthController::class, "redirect"]);
+Route::get("/auth/{social_network}/redirect", [\App\Http\Controllers\AuthController::class, "redirect"]);

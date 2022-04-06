@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Repository\User\Impl;
+namespace App\Repository\User\Impl;
 
-use App\Http\Repository\User\IUser;
-use App\Http\Repository\User\Repository;
-use App\Http\UseCase\Status;
 use App\Models\User;
+use App\Repository\User\IUser;
+use App\Repository\User\Repository;
+use App\UseCase\Status;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Psr\Container\ContainerExceptionInterface;

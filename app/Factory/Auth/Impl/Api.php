@@ -1,17 +1,19 @@
 <?php
 
-namespace App\Http\Factory\Auth\Impl;
+namespace App\Factory\Auth\Impl;
 
+use App\Factory\Auth\AuthenticatorResponse;
+use App\Factory\Auth\GuardName;
+use App\Factory\Auth\IApi;
 use App\Http\Data\Auth\UserData;
-use App\Http\Factory\Auth\AuthenticatorResponse;
-use App\Http\Factory\Auth\GuardName;
-use App\Http\Factory\Auth\IApi;
-use App\Http\Repository\User\ICreateUser;
-use App\Http\UseCase\Status;
+use App\Models\User;
+use App\Notifications\ActiveUserNotification;
+use App\Repository\User\ICreateUser;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use JetBrains\PhpStorm\ArrayShape;
+use function resolve;
+use function throw_unless;
 
 class Api implements IApi
 {
@@ -37,16 +39,16 @@ class Api implements IApi
     /**
      * @inheritDoc
      */
-    public function register(GuardName $guardName, UserData $userData): string
+    public function register(GuardName $guardName, UserData $userData): User
     {
-        $rememberToken = Str::random(50);
-        resolve(ICreateUser::class)->create([
+        $rememberToken = self::generate();
+        $user = resolve(ICreateUser::class)->create([
             "email" => $userData->getEmail(),
             "name" => $userData->getUsername(),
-            "status" => Status::LOCKED->getName(),
+            "status" => $userData->getStatus()->getName(),
             "remember_token" => $rememberToken,
         ]);
-
-        return $rememberToken;
+        $user->notify(new ActiveUserNotification($rememberToken, $userData->getName() ?: $userData->getUsername()));
+        return $user;
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Repository\User;
+namespace App\Repository\User;
 
-use App\Http\UseCase\Status;
+use App\UseCase\Status;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 

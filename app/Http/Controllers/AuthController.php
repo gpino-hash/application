@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\Auth\GuardName;
+use App\Factory\Auth\IApi;
+use App\Factory\Auth\ISocialNetwork;
 use App\Http\Builder\Auth\UserBuilder;
 use App\Http\Data\Auth\UserData;
-use App\Http\Factory\Auth\GuardName;
-use App\Http\Factory\Auth\IApi;
-use App\Http\Factory\Auth\ISocialNetwork;
 use App\Http\Requests\AuthRequest;
 use App\Http\Traits\ResponseWithHttpStatus;
-use App\Http\UseCase\Status;
-use App\Http\UseCase\TypeSocialNetworks;
+use App\UseCase\Status;
+use App\UseCase\TypeSocialNetworks;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -32,8 +32,7 @@ class AuthController extends Controller
      * @param IApi $apiAuthentication
      * @param ISocialNetwork $socialNetworkAuthentication
      */
-    public function __construct(IApi           $apiAuthentication,
-                                ISocialNetwork $socialNetworkAuthentication)
+    public function __construct(IApi $apiAuthentication, ISocialNetwork $socialNetworkAuthentication)
     {
         $this->apiAuthentication = $apiAuthentication;
         $this->socialNetworkAuthentication = $socialNetworkAuthentication;
@@ -59,11 +58,11 @@ class AuthController extends Controller
      * @param string $socialNetwork
      * @return Application|Response|ResponseFactory
      */
-    public function loginWithSocialNetwork(string $socialNetwork): Application|ResponseFactory|Response
+    public function socialNetwork(string $socialNetwork): Application|ResponseFactory|Response
     {
         try {
             return $this->success("Request made successfully.",
-                $this->socialNetworkAuthentication->login(GuardName::WEB, TypeSocialNetworks::getTypeSocialNetworks($socialNetwork)));
+                $this->socialNetworkAuthentication->build(GuardName::WEB, TypeSocialNetworks::getTypeSocialNetworks($socialNetwork)));
         } catch (AuthenticationException $authenticationException) {
             return $this->failure("Failed to authenticate. User or password is wrong.");
         } catch (Throwable $exception) {

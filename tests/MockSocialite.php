@@ -3,28 +3,33 @@
 namespace Tests;
 
 use Laravel\Socialite\Facades\Socialite;
+use Mockery;
+use Mockery\LegacyMockInterface;
+use Mockery\MockInterface;
 
 trait MockSocialite
 {
     /**
      * @param string $email
-     * @return void
+     * @return LegacyMockInterface|MockInterface|string
      */
-    public function mockSocialite(string $email = 'test.user' . '@gmail.com'): void
+    public function mockSocialite(string $email = 'test.user' . '@gmail.com'): LegacyMockInterface|MockInterface|string
     {
-        $abstractUser = \Mockery::mock('Laravel\Socialite\Two\User');
+        $abstractUser = Mockery::mock('Laravel\Socialite\Two\User');
 
         $abstractUser
             ->shouldReceive('getId')
             ->andReturn(rand())
             ->shouldReceive('getName')
             ->andReturn('test user')
+            ->shouldReceive('getNickName')
+            ->andReturn('testUser')
             ->shouldReceive('getEmail')
             ->andReturn($email)
             ->shouldReceive('getAvatar')
             ->andReturn('https://en.gravatar.com/userimage');
 
-        $provider = \Mockery::mock('Laravel\Socialite\Contracts\Provider');
+        $provider = Mockery::mock('Laravel\Socialite\Contracts\Provider');
         $provider->shouldReceive('stateless')
             ->andReturnSelf()
             ->shouldReceive('user')
@@ -33,5 +38,7 @@ trait MockSocialite
         Socialite::shouldReceive('driver')
             ->with('google')
             ->andReturn($provider);
+
+        return $provider;
     }
 }

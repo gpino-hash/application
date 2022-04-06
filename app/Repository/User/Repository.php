@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Repository\User;
+namespace App\Repository\User;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use function app;
+use function logger;
 
 abstract class Repository
 {

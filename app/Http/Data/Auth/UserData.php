@@ -2,7 +2,7 @@
 
 namespace App\Http\Data\Auth;
 
-use App\Http\UseCase\Status;
+use App\UseCase\Status;
 
 class UserData
 {
@@ -11,6 +11,7 @@ class UserData
     private $password;
     private $status;
     private $tags;
+    private $name;
 
     /**
      * @param $username
@@ -18,14 +19,16 @@ class UserData
      * @param $password
      * @param Status $status
      * @param $tags
+     * @param $name
      */
-    public function __construct($username, $email, $password, Status $status, $tags)
+    public function __construct($username, $email, $password, Status $status, $tags, $name)
     {
         $this->username = $username;
         $this->email = $email;
         $this->password = $password;
         $this->status = $status;
         $this->tags = $tags;
+        $this->name = $name;
     }
 
     /**
@@ -66,5 +69,13 @@ class UserData
     public function getTags(): array
     {
         return $this->tags;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 }

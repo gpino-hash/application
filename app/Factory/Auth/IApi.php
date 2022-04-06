@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Factory\Auth;
+namespace App\Factory\Auth;
 
 use App\Http\Data\Auth\UserData;
+use App\Models\User;
 
 interface IApi
 {
@@ -19,5 +20,5 @@ interface IApi
      * @param UserData $userData
      * @return string
      */
-    public function register(GuardName $guardName, UserData $userData): string;
+    public function register(GuardName $guardName, UserData $userData): User;
 }
