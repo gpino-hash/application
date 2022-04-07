@@ -19,11 +19,10 @@ use Tests\TestCase;
 
 class SocialNetworkTest extends TestCase
 {
-
     use MockSocialite;
 
     /**
-     * @testdox Check that it throws an exception when the registered user is not found.
+     * @testdox Check when the user does not exist the new user is created.
      * @test
      */
     public function caseOne()
@@ -46,7 +45,7 @@ class SocialNetworkTest extends TestCase
             ->andReturn($user);
 
         $api = $this->mockAuthSocialite($user);
-        $response = $api->build(GuardName::WEB, TypeSocialNetworks::GOOGLE);
+        $response = $api->handle(GuardName::WEB, TypeSocialNetworks::GOOGLE);
 
         Notification::assertSentTo([$user], ActiveUserNotification::class);
 
@@ -70,7 +69,7 @@ class SocialNetworkTest extends TestCase
             ->with($user->email, Status::ACTIVE)
             ->andReturn($user);
 
-        $response = $api->build(GuardName::WEB, TypeSocialNetworks::GOOGLE);
+        $response = $api->handle(GuardName::WEB, TypeSocialNetworks::GOOGLE);
 
         $this->assertEquals(new UserResource($user), $response["user"]);
         $this->assertEquals("Bearer", $response["token_type"]);

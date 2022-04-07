@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Symfony\Component\HttpFoundation\Request;
 
 class AuthRequest extends FormRequest
 {
@@ -23,9 +24,12 @@ class AuthRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            "username" => "required",
-            "password" => "required",
-        ];
+        if ($this->isMethod(Request::METHOD_POST)) {
+            return [
+                "username" => "required",
+                "password" => "required",
+            ];
+        }
+        return [];
     }
 }

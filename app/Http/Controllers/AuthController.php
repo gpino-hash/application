@@ -34,35 +34,25 @@ class AuthController extends Controller
      */
     public function __construct(IApi $apiAuthentication, ISocialNetwork $socialNetworkAuthentication)
     {
+        $this->middleware("guest");
         $this->apiAuthentication = $apiAuthentication;
         $this->socialNetworkAuthentication = $socialNetworkAuthentication;
     }
 
     /**
      * @param AuthRequest $request
+     * @param string|null $socialNetwork
      * @return Application|ResponseFactory|Response
      */
-    public function login(AuthRequest $request): Application|ResponseFactory|Response
+    public function login(AuthRequest $request, string $socialNetwork = null): Application|ResponseFactory|Response
     {
         try {
+            if ($request->isMethod("POST")) {
+                return $this->success("Request made successfully.",
+                    $this->apiAuthentication->login(GuardName::WEB, $this->getLoginData($request), $request->boolean("remember")));
+            }
             return $this->success("Request made successfully.",
-                $this->apiAuthentication->login(GuardName::WEB, $this->getLoginData($request), $request->boolean("remember")));
-        } catch (AuthenticationException $authenticationException) {
-            return $this->failure("Failed to authenticate. User or password is wrong.");
-        } catch (Throwable $exception) {
-            return $this->failure("We are currently having difficulties, please try again later.", Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * @param string $socialNetwork
-     * @return Application|Response|ResponseFactory
-     */
-    public function socialNetwork(string $socialNetwork): Application|ResponseFactory|Response
-    {
-        try {
-            return $this->success("Request made successfully.",
-                $this->socialNetworkAuthentication->build(GuardName::WEB, TypeSocialNetworks::getTypeSocialNetworks($socialNetwork)));
+                $this->socialNetworkAuthentication->handle(GuardName::WEB, TypeSocialNetworks::getTypeSocialNetworks($socialNetwork)));
         } catch (AuthenticationException $authenticationException) {
             return $this->failure("Failed to authenticate. User or password is wrong.");
         } catch (Throwable $exception) {
@@ -88,7 +78,7 @@ class AuthController extends Controller
         return UserBuilder::builder()
             ->username($request->input("username"))
             ->password($request->input("password"))
-            ->status(Status::getUserStatus($request->input("status")))
+            ->status(Status::getUserStatus($request->input("status", "locked")))
             ->build();
     }
 }

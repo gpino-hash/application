@@ -11,5 +11,5 @@ interface ISocialNetwork
      * @param TypeSocialNetworks $typeSocialNetworks
      * @return array
      */
-    public function build(GuardName $guardName, TypeSocialNetworks $typeSocialNetworks): array;
+    public function handle(GuardName $guardName, TypeSocialNetworks $typeSocialNetworks): array;
 }

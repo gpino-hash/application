@@ -18,7 +18,7 @@ interface IApi
     /**
      * @param GuardName $guardName
      * @param UserData $userData
-     * @return string
+     * @return User
      */
     public function register(GuardName $guardName, UserData $userData): User;
 }

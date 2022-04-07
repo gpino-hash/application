@@ -27,7 +27,7 @@ class SocialNetwork implements ISocialNetwork
      * @throws \Throwable
      */
     #[ArrayShape(["access_token" => "mixed", "token_type" => "string", "user" => "\App\Http\Resources\UserResource"])]
-    public function build(GuardName $guardName, TypeSocialNetworks $typeSocialNetworks): array
+    public function handle(GuardName $guardName, TypeSocialNetworks $typeSocialNetworks): array
     {
         $socialMedia = Socialite::driver(Str::lower($typeSocialNetworks->name))->stateless()->user();
         $user = resolve(IUserByEmail::class)->getUserByEmail($socialMedia->getEmail(), Status::ACTIVE);
