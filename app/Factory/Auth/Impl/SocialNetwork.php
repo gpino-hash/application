@@ -45,8 +45,7 @@ class SocialNetwork implements ISocialNetwork
     private function getUser(SocialMediaUser $socialMedia): UserData
     {
         return UserBuilder::builder()
-            ->name($socialMedia->getName())
-            ->username($socialMedia->getNickname())
+            ->name($socialMedia->getNickname())
             ->email($socialMedia->getEmail())
             ->status(Status::LOCKED)
             ->build();

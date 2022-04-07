@@ -15,7 +15,7 @@ trait MockAuthenticate
     private function mockLoginData(array $credentials): UserData
     {
         return UserBuilder::builder()
-            ->username($credentials["username"])
+            ->name($credentials["username"])
             ->password($credentials["password"])
             ->status(Status::getUserStatus($credentials["status"]))
             ->build();

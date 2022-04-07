@@ -46,12 +46,13 @@ class AuthController extends Controller
      */
     public function login(AuthRequest $request, string $socialNetwork = null): Application|ResponseFactory|Response
     {
+        $message = "Request made successfully.";
         try {
             if ($request->isMethod("POST")) {
-                return $this->success("Request made successfully.",
+                return $this->success($message,
                     $this->apiAuthentication->login(GuardName::WEB, $this->getLoginData($request), $request->boolean("remember")));
             }
-            return $this->success("Request made successfully.",
+            return $this->success($message,
                 $this->socialNetworkAuthentication->handle(GuardName::WEB, TypeSocialNetworks::getTypeSocialNetworks($socialNetwork)));
         } catch (AuthenticationException $authenticationException) {
             return $this->failure("Failed to authenticate. User or password is wrong.");
@@ -76,7 +77,7 @@ class AuthController extends Controller
     private function getLoginData(Request $request): UserData
     {
         return UserBuilder::builder()
-            ->username($request->input("username"))
+            ->name($request->input("username"))
             ->password($request->input("password"))
             ->status(Status::getUserStatus($request->input("status", "locked")))
             ->build();

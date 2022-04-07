@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Tests\Mock\MockAuthenticate;
 use Tests\TestCase;
 
-class ApiAuthenticationTest extends TestCase
+class ApiTest extends TestCase
 {
     use MockAuthenticate;
 

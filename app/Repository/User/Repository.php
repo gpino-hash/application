@@ -14,8 +14,7 @@ abstract class Repository
     protected string $model = Model::class;
 
     /**
-     * @param array $data
-     * @return Model|Builder
+     * @inheritDoc
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */

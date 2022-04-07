@@ -15,3 +15,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::post("/auth/login", [\App\Http\Controllers\AuthController::class, "login"]);
 Route::get("/auth/{social_network}/callback", [\App\Http\Controllers\AuthController::class, "login"]);
+
+Route::post("/auth/register", [\App\Http\Controllers\RegisterController::class, "register"]);

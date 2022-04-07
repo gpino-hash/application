@@ -9,7 +9,6 @@ use JetBrains\PhpStorm\Pure;
 
 class UserBuilder extends Builder
 {
-    private $username;
     private $email;
     private $password;
     private $status;
@@ -20,16 +19,6 @@ class UserBuilder extends Builder
     public static function builder(): UserBuilder
     {
         return new UserBuilder();
-    }
-
-    /**
-     * @param string $username
-     * @return $this
-     */
-    public function username(string $username): self
-    {
-        $this->username = $username;
-        return $this;
     }
 
     /**
@@ -85,6 +74,6 @@ class UserBuilder extends Builder
     #[Pure]
     public function build(): UserData
     {
-        return new UserData($this->username, $this->email, $this->password, $this->status, $this->tags, $this->name);
+        return new UserData($this->email, $this->password, $this->status, $this->tags, $this->name);
     }
 }

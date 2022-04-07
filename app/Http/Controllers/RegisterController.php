@@ -9,6 +9,7 @@ use App\Http\Data\Auth\UserData;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Traits\ResponseWithHttpStatus;
+use App\UseCase\Status;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -54,9 +55,10 @@ class RegisterController extends Controller
     private function getUser(Request $request): UserData
     {
         return UserBuilder::builder()
-            ->username($request->input("username"))
+            ->name($request->input("name"))
             ->email($request->input("email"))
             ->password($request->input("password"))
+            ->status(Status::LOCKED)
             ->build();
     }
 }

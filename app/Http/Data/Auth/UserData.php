@@ -6,7 +6,6 @@ use App\UseCase\Status;
 
 class UserData
 {
-    private $username;
     private $email;
     private $password;
     private $status;
@@ -14,29 +13,19 @@ class UserData
     private $name;
 
     /**
-     * @param $username
      * @param $email
      * @param $password
-     * @param Status $status
+     * @param $status
      * @param $tags
      * @param $name
      */
-    public function __construct($username, $email, $password, Status $status, $tags, $name)
+    public function __construct($email, $password, $status, $tags, $name)
     {
-        $this->username = $username;
         $this->email = $email;
         $this->password = $password;
         $this->status = $status;
         $this->tags = $tags;
         $this->name = $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUsername(): string
-    {
-        return $this->username;
     }
 
     /**

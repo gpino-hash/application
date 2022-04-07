@@ -26,9 +26,9 @@ class Api implements IApi
     #[ArrayShape(["access_token" => "string", "token_type" => "string", "user" => "\App\Http\Resources\UserResource"])]
     public function login(GuardName $guardName, UserData $userData, bool $remember): array
     {
-        $key = filter_var($userData->getUsername(), FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+        $key = filter_var($userData->getName(), FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
         $credentials = [
-            $key => $userData->getUsername(),
+            $key => $userData->getName(),
             "password" => $userData->getPassword(),
             "status" => $userData->getStatus()->getName(),
         ];
@@ -44,11 +44,11 @@ class Api implements IApi
         $rememberToken = self::generate();
         $user = resolve(ICreateUser::class)->create([
             "email" => $userData->getEmail(),
-            "name" => $userData->getUsername(),
+            "name" => $userData->getName(),
             "status" => $userData->getStatus()->getName(),
             "remember_token" => $rememberToken,
         ]);
-        $user->notify(new ActiveUserNotification($rememberToken, $userData->getName() ?: $userData->getUsername()));
+        $user->notify(new ActiveUserNotification($rememberToken, $userData->getName()));
         return $user;
     }
 }
