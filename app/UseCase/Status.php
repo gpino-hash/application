@@ -2,35 +2,12 @@
 
 namespace App\UseCase;
 
-use Illuminate\Support\Str;
+use BenSampo\Enum\Enum;
 
-enum Status
+final class Status extends Enum
 {
-    case ACTIVE;
-    case INACTIVE;
-    case LOCKED;
-    case SLOW;
-
-    /**
-     * @param $type
-     * @return Status
-     */
-    public static function getUserStatus($type): Status
-    {
-        foreach (self::cases() as $case) {
-            if ($case->name == Str::upper($type)) {
-                return $case;
-            }
-        }
-
-        return self::ACTIVE;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return Str::lower($this->name);
-    }
+    const ACTIVE = "active";
+    const INACTIVE = "inactive";
+    const LOCKED = "locked";
+    const SLOW = "slow";
 }

@@ -49,7 +49,7 @@ class ActiveUserNotification extends Notification
 
         return (new MailMessage)
             ->subject("Activacion de usuario")
-            ->markdown('auth.active-user', ["token" => $url, "name" => $this->name]);
+            ->markdown('auth.active-user', ["url" => $url, "name" => $this->name]);
     }
 
     /**

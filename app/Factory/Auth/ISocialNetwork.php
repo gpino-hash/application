@@ -2,14 +2,12 @@
 
 namespace App\Factory\Auth;
 
-use App\UseCase\TypeSocialNetworks;
-
 interface ISocialNetwork
 {
     /**
-     * @param GuardName $guardName
-     * @param TypeSocialNetworks $typeSocialNetworks
+     * @param string $guardName
+     * @param string $typeSocialNetworks
      * @return array
      */
-    public function handle(GuardName $guardName, TypeSocialNetworks $typeSocialNetworks): array;
+    public function handle(string $guardName, string $typeSocialNetworks): array;
 }

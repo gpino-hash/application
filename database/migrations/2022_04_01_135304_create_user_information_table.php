@@ -20,8 +20,7 @@ return new class extends Migration {
             $table->date("birthdate");
             $table->string("nationality")->nullable();
 
-            $table->unsignedBigInteger("user_id");
-            $table->foreign("user_id")->references("id")->on("users");
+            $table->foreignIdFor(\App\Models\User::class)->constrained();
 
             $table->timestamps();
             $table->softDeletes();

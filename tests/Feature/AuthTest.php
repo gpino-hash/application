@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Factory\Auth\AbstractAuthFactory;
+use App\Factory\Auth\IApi;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\UseCase\Status;
@@ -9,160 +11,145 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 use Tests\MockSocialite;
-use Tests\TestCase;
 
-class AuthTest extends TestCase
-{
-    use DatabaseTransactions, MockSocialite;
+uses(DatabaseTransactions::class, MockSocialite::class);
 
-    /**
-     * @testdox check when parameters are null return validation.
-     * @test
-     */
-    public function caseOne()
-    {
-        $response = $this->json(Request::METHOD_POST, "api/auth/login", [
-            "username" => null,
-            "password" => null,
-            "status" => "active",
-        ]);
+it("check when parameters are null return validation.", function () {
+    $response = $this->json(Request::METHOD_POST, "api/auth/login", [
+        "username" => null,
+        "password" => null,
+        "status" => "active",
+    ]);
 
-        $response->assertJsonValidationErrors(["username", "password"]);
-    }
+    $response->assertJsonValidationErrors(["username", "password"]);
+})->group("Api");
 
-    /**
-     * @testdox Check when the user does not match to start session returns an error
-     * @test
-     */
-    public function caseTwo()
-    {
-        $user = User::factory()->make();
-        $credential = [
-            "username" => $user->email,
-            "password" => "password",
-            "status" => "active",
-        ];
-        $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
-        $response->assertJsonMissingValidationErrors(["username", "password"]);
-        $response->assertJsonStructure([
-            "success",
-            "message",
-        ]);
-        $this->assertEquals(false, $response->json("success"));
-        $this->assertEquals("Failed to authenticate. User or password is wrong.", $response->json("message"));
-    }
+it("Check when the user does not exist, does not log in.", function () {
+    $user = User::factory()->make();
+    $credential = [
+        "username" => $user->email,
+        "password" => "password",
+        "status" => "active",
+    ];
+    $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
+    $response->assertJsonMissingValidationErrors(["username", "password"]);
+    $response->assertJsonStructure([
+        "success",
+        "message",
+    ]);
 
-    /**
-     * @testdox Check when we enter the correct username and password log in.
-     * @test
-     */
-    public function caseThree()
-    {
-        $user = User::factory()->create();
-        $credential = [
-            "username" => $user->email,
-            "password" => "password",
-            "status" => Status::ACTIVE->name,
-        ];
-        $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
-        $this->assertAuthenticatedAs($user);
-        $response->assertJsonStructure([
-            "success",
-            "data",
-            "message",
-        ]);
-        $userResource = new UserResource($user);
-        $data = $response->json();
-        $this->assertEquals(true, $data["success"]);
-        $this->assertEquals("Request made successfully.", $data["message"]);
-        $this->assertEquals($userResource->toArray(null), $data["data"]["user"]);
-    }
+    expect($response->json("success"))->toBeFalse();
+    expect($response->json("message"))->toBe("These credentials do not match our records.");
+})->group("Api");
 
-    /**
-     * @testdox Check when the user does not match to start session returns an error
-     * @test
-     */
-    public function caseFour()
-    {
-        $user = User::factory()->inactive()->create();
-        $credential = [
-            "username" => $user->email,
-            "password" => "password",
-            "status" => Status::ACTIVE->getName(),
-        ];
-        $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
-        $response->assertJsonMissingValidationErrors(["username", "password"]);
-        $this->assertInvalidCredentials([
-            "email" => $user->email,
-            "password" => "password",
-            "status" => Status::ACTIVE->getName(),
-        ]);
-        $response->assertJsonStructure([
-            "success",
-            "message",
-        ]);
-        $this->assertEquals(false, $response->json("success"));
-        $this->assertEquals("Failed to authenticate. User or password is wrong.", $response->json("message"));
-    }
+it("Check when we enter the correct email and password log in.", function () {
+    $user = User::factory()->create();
+    $credential = [
+        "username" => $user->email,
+        "password" => "password",
+        "status" => Status::ACTIVE,
+    ];
+    $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
+    $this->assertAuthenticatedAs($user);
+    $response->assertJsonStructure([
+        "success",
+        "data",
+        "message",
+    ]);
+    $userResource = new UserResource($user);
+    $data = $response->json();
+    expect($data["success"])->toBeTrue();
+    expect($data["message"])->toBe("Request made successfully.");
+    expect($data["data"]["user"])->toBe($userResource->toArray(null));
+})->group("Api");
 
-    /**
-     * @testdox Check when we enter the correct username and password log in.
-     * @test
-     */
-    public function caseFive()
-    {
-        $user = User::factory()->create();
-        $credential = [
-            "username" => $user->name,
-            "password" => "password",
-            "status" => Status::ACTIVE->name,
-        ];
-        $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
-        $this->assertAuthenticatedAs($user);
-        $response->assertJsonStructure([
-            "success",
-            "data",
-            "message",
-        ]);
-        $userResource = new UserResource($user);
-        $data = $response->json();
-        $this->assertEquals(true, $data["success"]);
-        $this->assertEquals("Request made successfully.", $data["message"]);
-        $this->assertEquals($userResource->toArray(null), $data["data"]["user"]);
-    }
+it("Check when the user does not match to start session returns an error", function () {
+    $user = User::factory()->inactive()->create();
+    $credential = [
+        "username" => $user->email,
+        "password" => "password",
+        "status" => Status::ACTIVE,
+    ];
+    $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
+    $response->assertJsonMissingValidationErrors(["username", "password"]);
+    $this->assertInvalidCredentials([
+        "email" => $user->email,
+        "password" => "password",
+        "status" => Status::ACTIVE,
+    ]);
+    $response->assertJsonStructure([
+        "success",
+        "message",
+    ]);
 
-    /**
-     * @testdox Check that the redirect works correctly.
-     * @test
-     */
-    public function caseSix()
-    {
-        $socialNetwork = "google";
-        Socialite::shouldReceive('driver')
-            ->with($socialNetwork)
-            ->once();
-        $this->call(Request::METHOD_GET, "auth/" . $socialNetwork . "/redirect")->isRedirection();
-    }
+    expect($response->json("success"))->toBeFalse();
+    expect($response->json("message"))->toBe("These credentials do not match our records.");
+})->group("Api");
 
-    /**
-     * @testdox Check the authentication of the user by social networks.
-     * @test
-     */
-    public function caseSeven()
-    {
-        $user = User::factory()->create();
-        $this->mockSocialite($user->email);
-        $response = $this->json(Request::METHOD_GET, "api/auth/google/callback");
-        $this->assertAuthenticatedAs($user);
-        $response->assertJsonStructure([
-            "success",
-            "data",
-            "message",
-        ]);
-        $userResource = new UserResource($user);
-        $data = $response->json();
-        $this->assertEquals(true, $data["success"]);
-        $this->assertEquals("Request made successfully.", $data["message"]);
-        $this->assertEquals($userResource->toArray(null), $data["data"]["user"]);
-    }
-}
+it("Check when we enter the correct username and password log in.", function () {
+
+    $user = User::factory()->create();
+    $credential = [
+        "username" => $user->name,
+        "password" => "password",
+        "status" => Status::ACTIVE,
+    ];
+    $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
+    $response->assertJsonStructure([
+        "success",
+        "data",
+        "message",
+    ]);
+    $userResource = new UserResource($user);
+    $data = $response->json();
+    expect($data["success"])->toBeTrue();
+    expect($data["message"])->toBe("Request made successfully.");
+    expect($data["data"]["user"])->toBe($userResource->toArray(null));
+})->group("Api");
+
+it("Check that it throws an error when trying to log in.", function () {
+    $user = User::factory()->create();
+    $credential = [
+        "username" => $user->email,
+        "password" => "password",
+        "status" => Status::ACTIVE,
+    ];
+
+    $api = \Pest\Laravel\mock(IApi::class)
+        ->shouldReceive("login")
+        ->withAnyArgs()
+        ->andThrow(\Exception::class);
+
+    \Pest\Laravel\mock(AbstractAuthFactory::class)
+        ->shouldReceive('api')
+        ->andReturn($api);
+
+    $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
+    expect($response->json("success"))->toBeFalse();
+    expect($response->json("message"))->toBe("We are currently having difficulties, please try again later.");
+})->group("Api");
+
+it("Check that the redirect works correctly.", function () {
+    $socialNetwork = "google";
+    Socialite::shouldReceive('driver')
+        ->with($socialNetwork)
+        ->once();
+    $this->call(Request::METHOD_GET, "auth/" . $socialNetwork . "/redirect")->isRedirection();
+})->group("Social Networks");
+
+it("Check the authentication of the user by social networks.", function () {
+    $user = User::factory()->create();
+    $this->mockSocialite($user->email);
+    $response = $this->json(Request::METHOD_GET, "api/auth/google/callback");
+    $this->assertAuthenticatedAs($user);
+    $response->assertJsonStructure([
+        "success",
+        "data",
+        "message",
+    ]);
+    $userResource = new UserResource($user);
+    $data = $response->json();
+    expect($data["success"])->toBeTrue();
+    expect($data["message"])->toBe("Request made successfully.");
+    expect($data["data"]["user"])->toBe($userResource->toArray(null));
+})->group("Social Networks");

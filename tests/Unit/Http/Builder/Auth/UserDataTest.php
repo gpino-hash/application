@@ -2,76 +2,24 @@
 
 namespace Tests\Unit\Http\Builder\Auth;
 
-use App\Http\Builder\Auth\UserBuilder;
-use App\Http\Data\Auth\UserData;
+use App\Http\Builder\Auth\UserData;
 use App\UseCase\Status;
-use PHPUnit\Framework\TestCase;
 
-class UserDataTest extends TestCase
-{
-    private UserData $userData;
+beforeEach(function () {
+    $user = new UserData();
+    $user->name = "test";
+    $user->email = "test@example.com";
+    $user->password = "1234";
+    $user->status = Status::ACTIVE;
+    $user->tags = ["test-tags"];
+    $this->userData = $user->build();
+});
 
-    public function setUp(): void
-    {
-        $this->userData = UserBuilder::builder()
-            ->name("test")
-            ->email("test@example.com")
-            ->password("1234")
-            ->status(Status::ACTIVE)
-            ->tags(["test-tags"])->build();
-    }
+it("Check that it returns the user data", function () {
+    expect($this->userData->name)->toBe("test");
+    expect($this->userData->email)->toBe("test@example.com");
+    expect($this->userData->password)->toBe("1234");
+    expect($this->userData->status)->toBe(Status::ACTIVE);
+    expect($this->userData->tags)->toBe(["test-tags"]);
+});
 
-    /**
-     * @testdox Check that it is an instance of UserData.
-     * @test
-     */
-    public function checkInstanceTest()
-    {
-        $this->assertInstanceOf(UserData::class, UserBuilder::builder()->build());
-    }
-
-    /**
-     * @testdox Check that it returns the value of name.
-     * @test
-     */
-    public function nameTest()
-    {
-        $this->assertEquals("test", $this->userData->getName());
-    }
-
-    /**
-     * @testdox check that it returns the value of email.
-     * @test
-     */
-    public function emailTest()
-    {
-        $this->assertEquals("test@example.com", $this->userData->getEmail());
-    }
-
-    /**
-     * @testdox check that it returns the value of password.
-     * @test
-     */
-    public function passwordTest()
-    {
-        $this->assertEquals("1234", $this->userData->getPassword());
-    }
-
-    /**
-     * @testdox check that it returns the value of status.
-     * @test
-     */
-    public function statusTest()
-    {
-        $this->assertEquals(Status::ACTIVE, $this->userData->getStatus());
-    }
-
-    /**
-     * @testdox check that it returns the array of tags.
-     * @test
-     */
-    public function tagsTest()
-    {
-        $this->assertEquals(["test-tags"], $this->userData->getTags());
-    }
-}

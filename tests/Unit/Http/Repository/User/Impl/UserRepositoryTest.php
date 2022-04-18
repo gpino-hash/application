@@ -32,7 +32,7 @@ class UserRepositoryTest extends TestCase
 
         $builder = $this->mock(Builder::class);
         $builder->shouldReceive("where")->with("email", $user->email)->andReturnSelf();
-        $builder->shouldReceive("where")->with("status", Status::ACTIVE->getName())->andReturnSelf();
+        $builder->shouldReceive("where")->with("status", Status::ACTIVE)->andReturnSelf();
         $builder->shouldReceive('first')->andReturn($user);
 
         $mockUser = $this->mock(User::class);

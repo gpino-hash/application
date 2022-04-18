@@ -6,12 +6,17 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use function app;
-use function logger;
 
 abstract class Repository
 {
     protected string $model = Model::class;
+
+    /**
+     * @param array $data
+     */
+    abstract protected function toProcessData(array &$data): void;
 
     /**
      * @inheritDoc
@@ -23,15 +28,16 @@ abstract class Repository
         $errorMessage = "Error trying to create user.";
         DB::beginTransaction();
         try {
-            $user = $this->getModelBuilder()->create($data);
+            $this->toProcessData($data);
+            $create = $this->getModelBuilder()->create($data);
             DB::commit();
         } catch (\Throwable $exception) {
             DB::rollBack();
-            logger()->error($exception->getMessage(), [$exception]);
+            Log::stack(["stack"])->error($exception->getMessage(), [$exception]);
             throw new ModelNotFoundException($errorMessage);
         }
 
-        return $user;
+        return $create;
     }
 
     /**

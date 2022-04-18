@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Factory\Auth\AbstractAuthFactory;
 use App\Factory\Auth\GuardName;
-use App\Factory\Auth\IApi;
 use App\Factory\Auth\ISocialNetwork;
-use App\Http\Builder\Auth\UserBuilder;
-use App\Http\Data\Auth\UserData;
+use App\Factory\Report\Impl\LevelType;
+use App\Factory\Report\Impl\LoggerComponent;
+use App\Factory\Report\Impl\LoggerFactory;
+use App\Http\Builder\Auth\UserData;
 use App\Http\Requests\AuthRequest;
 use App\Http\Traits\ResponseWithHttpStatus;
 use App\UseCase\Status;
@@ -17,6 +19,7 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use Throwable;
 
@@ -24,19 +27,14 @@ class AuthController extends Controller
 {
     use ResponseWithHttpStatus;
 
-    private IApi $apiAuthentication;
-
-    private ISocialNetwork $socialNetworkAuthentication;
-
     /**
-     * @param IApi $apiAuthentication
+     * @param AbstractAuthFactory $abstractFactory
      * @param ISocialNetwork $socialNetworkAuthentication
      */
-    public function __construct(IApi $apiAuthentication, ISocialNetwork $socialNetworkAuthentication)
+    public function __construct(private AbstractAuthFactory $abstractFactory,
+                                private ISocialNetwork $socialNetworkAuthentication)
     {
         $this->middleware("guest");
-        $this->apiAuthentication = $apiAuthentication;
-        $this->socialNetworkAuthentication = $socialNetworkAuthentication;
     }
 
     /**
@@ -46,18 +44,24 @@ class AuthController extends Controller
      */
     public function login(AuthRequest $request, string $socialNetwork = null): Application|ResponseFactory|Response
     {
-        $message = "Request made successfully.";
         try {
             if ($request->isMethod("POST")) {
-                return $this->success($message,
-                    $this->apiAuthentication->login(GuardName::WEB, $this->getLoginData($request), $request->boolean("remember")));
+                return $this->success(__('auth.authenticated'),
+                    $this->abstractFactory->api()->login(GuardName::WEB,
+                        $this->getLoginData($request),
+                        $request->boolean("remember")));
             }
-            return $this->success($message,
-                $this->socialNetworkAuthentication->handle(GuardName::WEB, TypeSocialNetworks::getTypeSocialNetworks($socialNetwork)));
-        } catch (AuthenticationException $authenticationException) {
-            return $this->failure("Failed to authenticate. User or password is wrong.");
+            return $this->success(__('auth.authenticated'),
+                $this->abstractFactory->socialNetwork()->handle(GuardName::WEB,
+                    TypeSocialNetworks::fromValue($socialNetwork)->value));
+        } catch (AuthenticationException $exception) {
+            Log::stack(["stack"])->warning($exception->getMessage(), [$exception]);
+            return $this->failure(__("auth.failed"));
         } catch (Throwable $exception) {
-            return $this->failure("We are currently having difficulties, please try again later.", Response::HTTP_INTERNAL_SERVER_ERROR);
+            Log::stack(["stack"])->emergency($exception->getMessage(),
+                array_merge($request->only("email"), [$exception]));
+            return $this->failure(__("errors.error"),
+                $request->only("email"), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -76,10 +80,11 @@ class AuthController extends Controller
      */
     private function getLoginData(Request $request): UserData
     {
-        return UserBuilder::builder()
-            ->name($request->input("username"))
-            ->password($request->input("password"))
-            ->status(Status::getUserStatus($request->input("status", "locked")))
-            ->build();
+        $builder = new UserData();
+        $builder->email = $request->input("email");
+        $builder->name = $request->input("username");
+        $builder->password = $request->input("password");
+        $builder->status = Status::fromValue($request->input("status", "locked"))->value;
+        return $builder->build();
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Factory\Auth;
 
-enum GuardName
+use BenSampo\Enum\Enum;
+
+final class GuardName extends Enum
 {
-    case WEB;
+    const WEB = "web";
 }

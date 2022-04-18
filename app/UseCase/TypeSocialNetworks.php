@@ -2,26 +2,11 @@
 
 namespace App\UseCase;
 
-use Illuminate\Support\Str;
+use BenSampo\Enum\Enum;
 
-enum TypeSocialNetworks
+final class TypeSocialNetworks extends Enum
 {
-    case GOOGLE;
-    case FACEBOOK;
-    case TWITTER;
-
-    /**
-     * @param $type
-     * @return TypeSocialNetworks
-     */
-    public static function getTypeSocialNetworks($type): TypeSocialNetworks
-    {
-        foreach (self::cases() as $case) {
-            if ($case->name == Str::upper($type)) {
-                return $case;
-            }
-        }
-
-        return self::GOOGLE;
-    }
+    const GOOGLE = "google";
+    const FACEBOOK = "facebook";
+    const TWITTER = "twitter";
 }

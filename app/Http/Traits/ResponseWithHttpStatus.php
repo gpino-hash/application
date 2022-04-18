@@ -21,11 +21,12 @@ trait ResponseWithHttpStatus
 
     /**
      * @param $message
+     * @param array $errors
      * @param int $status
      * @return Application|ResponseFactory|Response
      */
-    protected function failure($message, int $status = Response::HTTP_UNPROCESSABLE_ENTITY): Response|Application|ResponseFactory
+    protected function failure($message, array $errors = [], int $status = Response::HTTP_UNPROCESSABLE_ENTITY): Response|Application|ResponseFactory
     {
-        return response(['success' => false, 'message' => $message,], $status);
+        return response(['success' => false, 'errors' => $errors, 'message' => $message,], $status);
     }
 }

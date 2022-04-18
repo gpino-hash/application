@@ -2,8 +2,7 @@
 
 namespace Tests\Mock;
 
-use App\Http\Builder\Auth\UserBuilder;
-use App\Http\Data\Auth\UserData;
+use App\Http\Builder\Auth\UserData;
 use App\UseCase\Status;
 
 trait MockAuthenticate
@@ -12,12 +11,12 @@ trait MockAuthenticate
      * @param array $credentials
      * @return UserData
      */
-    private function mockLoginData(array $credentials): UserData
+    public function mockLoginData(array $credentials): UserData
     {
-        return UserBuilder::builder()
-            ->name($credentials["username"])
-            ->password($credentials["password"])
-            ->status(Status::getUserStatus($credentials["status"]))
-            ->build();
+        $builder = new UserData();
+        $builder->name = $credentials["username"];
+        $builder->password = $credentials["password"];
+        $builder->status = Status::fromValue($credentials["status"])->value;
+        return $builder->build();
     }
 }

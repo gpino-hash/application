@@ -4,7 +4,6 @@ namespace Tests\Unit\Http\Factory\Auth\Impl;
 
 use App\Factory\Auth\GuardName;
 use App\Factory\Auth\Impl\Api;
-use App\Factory\Auth\Impl\SocialNetwork;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Notifications\ActiveUserNotification;
@@ -12,7 +11,6 @@ use App\Repository\User\ICreateUser;
 use App\Repository\User\IUserByEmail;
 use App\UseCase\Status;
 use App\UseCase\TypeSocialNetworks;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Tests\MockSocialite;
 use Tests\TestCase;
@@ -41,7 +39,7 @@ class SocialNetworkTest extends TestCase
 
         $this->mock(ICreateUser::class)
             ->shouldReceive("create")
-            ->with(["email" => $user->email, "name" => $socialMediaUser->getNickName(), "status" => Status::LOCKED->getName(), "remember_token" => "1234"])
+            ->with(["email" => $user->email, "name" => $socialMediaUser->getNickName(), "status" => Status::LOCKED, "remember_token" => "1234"])
             ->andReturn($user);
 
         $api = $this->mockAuthSocialite($user);
@@ -74,30 +72,5 @@ class SocialNetworkTest extends TestCase
         $this->assertEquals(new UserResource($user), $response["user"]);
         $this->assertEquals("Bearer", $response["token_type"]);
         $this->assertEquals("1234", $response["access_token"]);
-    }
-
-    /**
-     * @param User $user
-     * @return SocialNetwork|\PHPUnit\Framework\MockObject\MockObject
-     */
-    private function mockAuthSocialite(User $user)
-    {
-        Auth::shouldReceive('guard')
-            ->andReturnSelf()
-            ->shouldReceive('user')
-            ->andReturn($user)
-            ->shouldReceive('login')
-            ->with($user)
-            ->andReturnTrue();
-
-        $api = $this->getMockBuilder(SocialNetwork::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(["getToken"])
-            ->getMock();
-
-        $api->method("getToken")
-            ->willReturn("1234");
-
-        return $api;
     }
 }
