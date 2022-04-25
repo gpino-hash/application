@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Factory\Auth\IApi;
-use App\Http\Builder\Auth\UserData;
+use App\Factory\Auth\IAbstractAuthFactory;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Traits\ResponseWithHttpStatus;
+use App\Http\Traits\TryAccess;
 use App\UseCase\Status;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -17,12 +17,9 @@ use Throwable;
 
 class RegisterController extends Controller
 {
-    use ResponseWithHttpStatus;
+    use ResponseWithHttpStatus, TryAccess;
 
-    /**
-     * @param IApi $api
-     */
-    public function __construct(private IApi $api)
+    public function __construct(private IAbstractAuthFactory $authFactory)
     {
         $this->middleware('guest');
     }
@@ -34,8 +31,9 @@ class RegisterController extends Controller
     public function register(RegisterRequest $request): Response|Application|ResponseFactory
     {
         try {
+            $request->merge(["status" => Status::LOCKED]);
             return $this->success(__('register.registered'),
-                ["user" => new UserResource($this->api->register($this->getUser($request), "tags"))],
+                ["user" => new UserResource($this->create($request))],
                 Response::HTTP_CREATED);
         } catch (ModelNotFoundException $modelNotFoundException) {
             return $this->failure(__("register.create"),
@@ -50,15 +48,10 @@ class RegisterController extends Controller
 
     /**
      * @param Request $request
-     * @return UserData
+     * @return mixed
      */
-    private function getUser(Request $request): UserData
+    private function create(Request $request): mixed
     {
-        $builder = new UserData();
-        $builder->name = $request->input("name");
-        $builder->email = $request->input("email");
-        $builder->password = $request->input("password");
-        $builder->status = Status::LOCKED;
-        return $builder->build();
+        return $this->tryAccessAuth()->register($request->only("name", "email", "password", "status"));
     }
 }

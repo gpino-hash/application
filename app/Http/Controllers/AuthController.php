@@ -2,39 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Factory\Auth\AbstractAuthFactory;
-use App\Factory\Auth\GuardName;
-use App\Factory\Auth\ISocialNetwork;
-use App\Factory\Report\Impl\LevelType;
-use App\Factory\Report\Impl\LoggerComponent;
-use App\Factory\Report\Impl\LoggerFactory;
-use App\Http\Builder\Auth\UserData;
+use App\Factory\Auth\IAbstractAuthFactory;
 use App\Http\Requests\AuthRequest;
 use App\Http\Traits\ResponseWithHttpStatus;
-use App\UseCase\Status;
-use App\UseCase\TypeSocialNetworks;
+use App\Http\Traits\TryAccess;
+use App\UseCase\AuthenticationType;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
 class AuthController extends Controller
 {
-    use ResponseWithHttpStatus;
+    use ResponseWithHttpStatus, TryAccess;
 
-    /**
-     * @param AbstractAuthFactory $abstractFactory
-     * @param ISocialNetwork $socialNetworkAuthentication
-     */
-    public function __construct(private AbstractAuthFactory $abstractFactory,
-                                private ISocialNetwork $socialNetworkAuthentication)
+    public function __construct(private IAbstractAuthFactory $authFactory)
     {
-        $this->middleware("guest");
     }
 
     /**
@@ -45,15 +33,16 @@ class AuthController extends Controller
     public function login(AuthRequest $request, string $socialNetwork = null): Application|ResponseFactory|Response
     {
         try {
-            if ($request->isMethod("POST")) {
-                return $this->success(__('auth.authenticated'),
-                    $this->abstractFactory->api()->login(GuardName::WEB,
-                        $this->getLoginData($request),
-                        $request->boolean("remember")));
+            if ($request->isMethod(Request::METHOD_POST)) {
+                return $this->authenticate($request->only([
+                    "username",
+                    "email",
+                    "password",
+                    "status",
+                    "remember",
+                ]));
             }
-            return $this->success(__('auth.authenticated'),
-                $this->abstractFactory->socialNetwork()->handle(GuardName::WEB,
-                    TypeSocialNetworks::fromValue($socialNetwork)->value));
+            return $this->authenticate($socialNetwork, AuthenticationType::SOCIAL_NETWORK);
         } catch (AuthenticationException $exception) {
             Log::stack(["stack"])->warning($exception->getMessage(), [$exception]);
             return $this->failure(__("auth.failed"));
@@ -75,16 +64,12 @@ class AuthController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @return UserData
+     * @param array|string $data
+     * @param string $type
+     * @return Application|ResponseFactory|Response
      */
-    private function getLoginData(Request $request): UserData
+    private function authenticate(array|string $data, string $type = AuthenticationType::API): Application|ResponseFactory|Response
     {
-        $builder = new UserData();
-        $builder->email = $request->input("email");
-        $builder->name = $request->input("username");
-        $builder->password = $request->input("password");
-        $builder->status = Status::fromValue($request->input("status", "locked"))->value;
-        return $builder->build();
+        return $this->success(__('auth.authenticated'), $this->tryAccessAuth($type)->login($data));
     }
 }

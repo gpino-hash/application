@@ -2,8 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Factory\Auth\AbstractAuthFactory;
-use App\Factory\Auth\IApi;
+use App\Factory\Auth\GuardName;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\UseCase\Status;
@@ -19,6 +18,7 @@ it("check when parameters are null return validation.", function () {
         "username" => null,
         "password" => null,
         "status" => "active",
+        "remember" => false,
     ]);
 
     $response->assertJsonValidationErrors(["username", "password"]);
@@ -30,6 +30,7 @@ it("Check when the user does not exist, does not log in.", function () {
         "username" => $user->email,
         "password" => "password",
         "status" => "active",
+        "remember" => false,
     ];
     $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
     $response->assertJsonMissingValidationErrors(["username", "password"]);
@@ -48,9 +49,10 @@ it("Check when we enter the correct email and password log in.", function () {
         "username" => $user->email,
         "password" => "password",
         "status" => Status::ACTIVE,
+        "remember" => false,
     ];
     $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
-    $this->assertAuthenticatedAs($user);
+    $this->assertAuthenticatedAs($user, GuardName::WEB);
     $response->assertJsonStructure([
         "success",
         "data",
@@ -69,6 +71,7 @@ it("Check when the user does not match to start session returns an error", funct
         "username" => $user->email,
         "password" => "password",
         "status" => Status::ACTIVE,
+        "remember" => false,
     ];
     $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
     $response->assertJsonMissingValidationErrors(["username", "password"]);
@@ -93,6 +96,7 @@ it("Check when we enter the correct username and password log in.", function () 
         "username" => $user->name,
         "password" => "password",
         "status" => Status::ACTIVE,
+        "remember" => false,
     ];
     $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
     $response->assertJsonStructure([
@@ -114,15 +118,6 @@ it("Check that it throws an error when trying to log in.", function () {
         "password" => "password",
         "status" => Status::ACTIVE,
     ];
-
-    $api = \Pest\Laravel\mock(IApi::class)
-        ->shouldReceive("login")
-        ->withAnyArgs()
-        ->andThrow(\Exception::class);
-
-    \Pest\Laravel\mock(AbstractAuthFactory::class)
-        ->shouldReceive('api')
-        ->andReturn($api);
 
     $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
     expect($response->json("success"))->toBeFalse();

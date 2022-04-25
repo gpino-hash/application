@@ -18,5 +18,9 @@ Route::controller(\App\Http\Controllers\AuthController::class)->group(function (
     Route::post("/auth/login", "login");
 });
 
-Route::post("/auth/forgot-password", [\App\Http\Controllers\PasswordController::class, "forgot"]);
+Route::controller(\App\Http\Controllers\PasswordController::class)->group(function () {
+    Route::post("/auth/forgot-password", "forgot");
+    Route::post("/auth/reset-password", "reset");
+});
+
 Route::post("/auth/register", [\App\Http\Controllers\RegisterController::class, "register"]);

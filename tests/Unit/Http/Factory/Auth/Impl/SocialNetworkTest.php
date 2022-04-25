@@ -2,22 +2,21 @@
 
 namespace Tests\Unit\Http\Factory\Auth\Impl;
 
-use App\Factory\Auth\GuardName;
-use App\Factory\Auth\Impl\Api;
+use App\Factory\Auth\IAuthenticate;
+use App\Factory\Auth\Impl\ApiAuthentication;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Notifications\ActiveUserNotification;
-use App\Repository\User\ICreateUser;
-use App\Repository\User\IUserByEmail;
+use App\Repository\User\IUser;
+use App\UseCase\SocialNetworkType;
 use App\UseCase\Status;
-use App\UseCase\TypeSocialNetworks;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Notification;
 use Tests\MockSocialite;
 use Tests\TestCase;
 
 class SocialNetworkTest extends TestCase
 {
-    use MockSocialite;
+    use DatabaseTransactions, MockSocialite;
 
     /**
      * @testdox Check when the user does not exist the new user is created.
@@ -30,22 +29,22 @@ class SocialNetworkTest extends TestCase
         $user = User::factory()->make();
         $socialMediaUser = $this->mockSocialite($user->email)->user();
 
-        $this->mock(IUserByEmail::class)
+        ApiAuthentication::setTest("1234");
+
+        mock(User::class)
             ->shouldReceive("getUserByEmail")
             ->with($user->email, Status::ACTIVE)
             ->andReturnNull();
 
-        Api::setTest("1234");
-
-        $this->mock(ICreateUser::class)
-            ->shouldReceive("create")
-            ->with(["email" => $user->email, "name" => $socialMediaUser->getNickName(), "status" => Status::LOCKED, "remember_token" => "1234"])
+        $this->mock(IAuthenticate::class)
+            ->shouldReceive("register")
+            ->with(["email" => $user->email, "name" => $socialMediaUser->getNickName(), "status" => Status::LOCKED,])
             ->andReturn($user);
 
-        $api = $this->mockAuthSocialite($user);
-        $response = $api->handle(GuardName::WEB, TypeSocialNetworks::GOOGLE);
+        ApiAuthentication::setTest("1234");
 
-        Notification::assertSentTo([$user], ActiveUserNotification::class);
+        $api = $this->mockAuthSocialite($user);
+        $response = $api->login(SocialNetworkType::GOOGLE);
 
         $this->assertEquals("Bearer", $response["token_type"]);
         $this->assertEquals("1234", $response["access_token"]);
@@ -57,17 +56,19 @@ class SocialNetworkTest extends TestCase
      */
     public function caseTwo()
     {
-        $user = User::factory()->make();
+        $user = User::factory()->create();
 
         $this->mockSocialite($user->email);
         $api = $this->mockAuthSocialite($user);
 
-        $this->mock(IUserByEmail::class)
+        ApiAuthentication::setTest("1234");
+
+        $this->mock(User::class)
             ->shouldReceive("getUserByEmail")
             ->with($user->email, Status::ACTIVE)
             ->andReturn($user);
 
-        $response = $api->handle(GuardName::WEB, TypeSocialNetworks::GOOGLE);
+        $response = $api->login(SocialNetworkType::GOOGLE);
 
         $this->assertEquals(new UserResource($user), $response["user"]);
         $this->assertEquals("Bearer", $response["token_type"]);

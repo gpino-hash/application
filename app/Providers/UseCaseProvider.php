@@ -2,35 +2,25 @@
 
 namespace App\Providers;
 
-use App\Factory\Auth\AbstractAuthFactory;
-use App\Factory\Auth\IApi;
-use App\Factory\Auth\Impl\Api;
-use App\Factory\Auth\Impl\DefaultAbstractAuthFactory;
-use App\Factory\Auth\Impl\SocialNetwork;
-use App\Factory\Auth\ISocialNetwork;
+use App\Factory\Auth\IAbstractAuthFactory;
+use App\Factory\Auth\IAuthenticate;
+use App\Factory\Auth\ILogin;
+use App\Factory\Auth\Impl\AbstractAuthFactory;
+use App\Factory\Auth\Impl\ApiAuthentication;
+use App\Factory\Auth\Impl\SocialMediaAuthentication;
 use Illuminate\Support\ServiceProvider;
 
 class UseCaseProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        //
-    }
 
     /**
-     * Bootstrap services.
+     * All of the container bindings that should be registered.
      *
-     * @return void
+     * @var array
      */
-    public function boot()
-    {
-        $this->app->bind(ISocialNetwork::class, SocialNetwork::class);
-        $this->app->bind(IApi::class, Api::class);
-        $this->app->bind(AbstractAuthFactory::class, DefaultAbstractAuthFactory::class);
-    }
+    public array $bindings = [
+        ILogin::class => SocialMediaAuthentication::class,
+        IAuthenticate::class => ApiAuthentication::class,
+        IAbstractAuthFactory::class => AbstractAuthFactory::class,
+    ];
 }

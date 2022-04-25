@@ -2,9 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Factory\Auth\Impl\Api;
+use App\Factory\Auth\IAuthenticate;
+use App\Factory\Auth\Impl\ApiAuthentication;
 use App\Models\User;
-use App\Repository\User\ICreateUser;
+use App\Repository\User\IUser;
 use App\UseCase\Status;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -33,7 +34,6 @@ it("Check when the email exists skip the validation.", function () {
         "name" => faker()->name,
         "password_confirmation" => "Dwert1234*",
     ]);
-
     $response->assertJsonValidationErrors(["email"]);
     $response->assertJsonMissingValidationErrors(["password", "name", "password_confirmation"]);
 });
@@ -95,11 +95,11 @@ it("Check when you try to save a data it throws a ModeNotFoundException.", funct
         "name" => faker()->name,
     ];
 
-    Api::setTest("1234");
+    ApiAuthentication::setTest("1234");
 
-    \Pest\Laravel\mock(ICreateUser::class)
-        ->shouldReceive("create")
-        ->with(["email" => $data["email"], "password" => "Dwert1234*", "name" => $data["name"], "status" => Status::LOCKED, "remember_token" => "1234"])
+    \Pest\Laravel\mock(IAuthenticate::class)
+        ->shouldReceive("register")
+        ->with(["email" => $data["email"], "password" => "Dwert1234*", "name" => $data["name"], "status" => Status::LOCKED,])
         ->andThrow(ModelNotFoundException::class);
 
     $response = $this->json(Request::METHOD_POST, "api/auth/register", array_merge($data, [
@@ -119,11 +119,11 @@ it("Check when you try to save a data it throws an Exception.", function () {
         "name" => faker()->name,
     ];
 
-    Api::setTest("1234");
+    ApiAuthentication::setTest("1234");
 
-    \Pest\Laravel\mock(ICreateUser::class)
-        ->shouldReceive("create")
-        ->with(["email" => $data["email"], "name" => $data["name"], "status" => Status::LOCKED, "remember_token" => "1234"])
+    \Pest\Laravel\mock(IAuthenticate::class)
+        ->shouldReceive("register")
+        ->with(["email" => $data["email"], "name" => $data["name"], "status" => Status::LOCKED,])
         ->andThrow(\Exception::class);
 
     $response = $this->json(Request::METHOD_POST, "api/auth/register", array_merge($data, [

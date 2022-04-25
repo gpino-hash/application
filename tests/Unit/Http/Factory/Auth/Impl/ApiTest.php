@@ -2,20 +2,17 @@
 
 namespace Tests\Unit\Http\Factory\Auth\Impl;
 
-use App\Factory\Auth\GuardName;
-use App\Factory\Auth\Impl\Api;
+use App\Factory\Auth\Impl\ApiAuthentication;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
-use Tests\Mock\MockAuthenticate;
-
-uses(MockAuthenticate::class);
 
 it("Check that it throws an exception when the registered user with the email is not found.", function () {
     $credentials = [
         "username" => "test@test.com",
         "password" => "test",
         "status" => "active",
+        "remember" => false,
     ];
     Auth::shouldReceive('guard')
         ->andReturnSelf()
@@ -27,8 +24,8 @@ it("Check that it throws an exception when the registered user with the email is
         ], false)
         ->andReturnFalse();
 
-    $api = new Api();
-    $api->login(GuardName::WEB, $this->mockLoginData($credentials), false);
+    $api = new ApiAuthentication();
+    $api->login($credentials);
 })->expectException(AuthenticationException::class);
 
 it("Check that it throws an exception when the registered user with the name is not found.", function () {
@@ -36,6 +33,7 @@ it("Check that it throws an exception when the registered user with the name is 
         "username" => "test",
         "password" => "test",
         "status" => "active",
+        "remember" => false,
     ];
     Auth::shouldReceive('guard')
         ->andReturnSelf()
@@ -47,8 +45,8 @@ it("Check that it throws an exception when the registered user with the name is 
         ], false)
         ->andReturnFalse();
 
-    $api = new Api();
-    $api->login(GuardName::WEB, $this->mockLoginData($credentials), false);
+    $api = new ApiAuthentication();
+    $api->login($credentials);
 })->expectException(AuthenticationException::class);
 
 it("Check when the login is successful.", function () {
@@ -56,9 +54,10 @@ it("Check when the login is successful.", function () {
         "username" => "test@test.com",
         "password" => "password",
         "status" => "active",
+        "remember" => false,
     ];
 
-    $api = $this->getMockBuilder(Api::class)
+    $api = $this->getMockBuilder(ApiAuthentication::class)
         ->disableOriginalConstructor()
         ->onlyMethods(["getToken"])
         ->getMock();
@@ -79,7 +78,7 @@ it("Check when the login is successful.", function () {
         ], false)
         ->andReturnTrue();
 
-    $response = $api->login(GuardName::WEB, $this->mockLoginData($credentials), false);
+    $response = $api->login($credentials);
     expect($response["token_type"])->toBe("Bearer");
     expect($response["access_token"])->toBe("1234");
 });

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -51,5 +53,26 @@ class User extends Authenticatable
     public function userInformation(): HasOne
     {
         return $this->hasOne(UserInformation::class);
+    }
+
+    /**
+     * @param string $email
+     * @param string $status
+     * @return Model|Builder|null
+     */
+    public static function getUserByEmail(string $email, string $status): Model|Builder|null
+    {
+        return self::query()->where("email", $email)
+            ->where("status", $status)
+            ->first();
+    }
+
+    /**
+     * @param array $data
+     * @return Model|Builder
+     */
+    public static function create(array $data): Model|Builder
+    {
+        return self::query()->create($data);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use App\Factory\Auth\Impl\SocialNetwork;
+use App\Factory\Auth\Impl\SocialMediaAuthentication;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
@@ -47,7 +47,7 @@ trait MockSocialite
 
     /**
      * @param User $user
-     * @return SocialNetwork|\PHPUnit\Framework\MockObject\MockObject
+     * @return SocialMediaAuthentication|\PHPUnit\Framework\MockObject\MockObject
      */
     public function mockAuthSocialite(User $user)
     {
@@ -55,11 +55,11 @@ trait MockSocialite
             ->andReturnSelf()
             ->shouldReceive('user')
             ->andReturn($user)
-            ->shouldReceive('login')
-            ->with($user)
+            ->shouldReceive('loginUsingId')
+            ->with($user->id)
             ->andReturnTrue();
 
-        $api = $this->getMockBuilder(SocialNetwork::class)
+        $api = $this->getMockBuilder(SocialMediaAuthentication::class)
             ->disableOriginalConstructor()
             ->onlyMethods(["getToken"])
             ->getMock();
