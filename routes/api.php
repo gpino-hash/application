@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,15 +13,14 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
-Route::controller(\App\Http\Controllers\AuthController::class)->group(function () {
-    Route::get("/auth/{social_network}/callback", "login");
-    Route::post("/auth/login", "login");
+Route::prefix("auth")->controller(AuthController::class)->group(function () {
+    Route::get("/{social_network}/callback", "login")->name("login.social_network");
+    Route::post("/login", "login")->name("login");
+    Route::post("/forgot-password", "forgot")->name("forgot");
+    Route::post("/reset-password", "reset")->name("reset");
+    Route::post("/register", "register")->name("register");
 });
 
-Route::controller(\App\Http\Controllers\PasswordController::class)->group(function () {
-    Route::post("/auth/forgot-password", "forgot");
-    Route::post("/auth/reset-password", "reset");
+Route::prefix("admin")->controller(\App\Http\Controllers\UserController::class)->group(function () {
+    Route::get("/users", "index")->name("users.index");
 });
-
-Route::post("/auth/register", [\App\Http\Controllers\RegisterController::class, "register"]);

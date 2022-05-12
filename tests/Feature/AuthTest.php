@@ -2,14 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Factory\Auth\GuardName;
+use App\Enums\Status;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\UseCase\Status;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
-use Tests\MockSocialite;
+use Tests\Mocks\MockSocialite;
 
 uses(DatabaseTransactions::class, MockSocialite::class);
 
@@ -44,7 +43,7 @@ it("Check when the user does not exist, does not log in.", function () {
 })->group("Api");
 
 it("Check when we enter the correct email and password log in.", function () {
-    $user = User::factory()->create();
+    $user = User::factory()->active()->create();
     $credential = [
         "username" => $user->email,
         "password" => "password",
@@ -52,7 +51,7 @@ it("Check when we enter the correct email and password log in.", function () {
         "remember" => false,
     ];
     $response = $this->json(Request::METHOD_POST, "api/auth/login", $credential);
-    $this->assertAuthenticatedAs($user, GuardName::WEB);
+    $this->assertAuthenticatedAs($user, "web");
     $response->assertJsonStructure([
         "success",
         "data",
@@ -91,7 +90,7 @@ it("Check when the user does not match to start session returns an error", funct
 
 it("Check when we enter the correct username and password log in.", function () {
 
-    $user = User::factory()->create();
+    $user = User::factory()->active()->create();
     $credential = [
         "username" => $user->name,
         "password" => "password",
@@ -133,7 +132,7 @@ it("Check that the redirect works correctly.", function () {
 })->group("Social Networks");
 
 it("Check the authentication of the user by social networks.", function () {
-    $user = User::factory()->create();
+    $user = User::factory()->active()->create();
     $this->mockSocialite($user->email);
     $response = $this->json(Request::METHOD_GET, "api/auth/google/callback");
     $this->assertAuthenticatedAs($user);
@@ -147,4 +146,20 @@ it("Check the authentication of the user by social networks.", function () {
     expect($data["success"])->toBeTrue();
     expect($data["message"])->toBe("Request made successfully.");
     expect($data["data"]["user"])->toBe($userResource->toArray(null));
+})->group("Social Networks");
+
+it("Check the authentication of the user by social networks1.", function () {
+    $user = User::factory()->active()->make();
+    $this->mockSocialite($user->email);
+    $response = $this->json(Request::METHOD_GET, "api/auth/google/callback");
+    $this->assertAuthenticated();
+    $response->assertJsonStructure([
+        "success",
+        "data",
+        "message",
+    ]);
+    $data = $response->json();
+    expect($data["success"])->toBeTrue();
+    expect($data["message"])->toBe("Request made successfully.");
+    expect($data["data"]["user"]["email"])->toBe($user->email);
 })->group("Social Networks");

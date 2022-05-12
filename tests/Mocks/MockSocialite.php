@@ -1,12 +1,9 @@
 <?php
 
-namespace Tests;
 
-use App\Factory\Auth\Impl\SocialMediaAuthentication;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+namespace Tests\Mocks;
+
 use Laravel\Socialite\Facades\Socialite;
-use Mockery;
 use Mockery\LegacyMockInterface;
 use Mockery\MockInterface;
 
@@ -18,7 +15,7 @@ trait MockSocialite
      */
     public function mockSocialite(string $email = 'test.user' . '@gmail.com'): LegacyMockInterface|MockInterface|string
     {
-        $abstractUser = Mockery::mock('Laravel\Socialite\Two\User');
+        $abstractUser = \Mockery::mock('Laravel\Socialite\Two\User');
 
         $abstractUser
             ->shouldReceive('getId')
@@ -32,7 +29,7 @@ trait MockSocialite
             ->shouldReceive('getAvatar')
             ->andReturn('https://en.gravatar.com/userimage');
 
-        $provider = Mockery::mock('Laravel\Socialite\Contracts\Provider');
+        $provider = \Mockery::mock('Laravel\Socialite\Contracts\Provider');
         $provider->shouldReceive('stateless')
             ->andReturnSelf()
             ->shouldReceive('user')
@@ -43,30 +40,5 @@ trait MockSocialite
             ->andReturn($provider);
 
         return $provider;
-    }
-
-    /**
-     * @param User $user
-     * @return SocialMediaAuthentication|\PHPUnit\Framework\MockObject\MockObject
-     */
-    public function mockAuthSocialite(User $user)
-    {
-        Auth::shouldReceive('guard')
-            ->andReturnSelf()
-            ->shouldReceive('user')
-            ->andReturn($user)
-            ->shouldReceive('loginUsingId')
-            ->with($user->id)
-            ->andReturnTrue();
-
-        $api = $this->getMockBuilder(SocialMediaAuthentication::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(["getToken"])
-            ->getMock();
-
-        $api->method("getToken")
-            ->willReturn("1234");
-
-        return $api;
     }
 }

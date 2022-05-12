@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\UseCase\Status;
+use App\Enums\Status;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -24,7 +24,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'remember_token' => Str::random(10),
-            'status' => Status::ACTIVE,
+            'status' => $this->faker->randomElement([Status::ACTIVE, Status::INACTIVE, Status::LOCKED, Status::SLOW]),
         ];
     }
 
@@ -40,6 +40,11 @@ class UserFactory extends Factory
                 'email_verified_at' => null,
             ];
         });
+    }
+
+    public function active(): UserFactory
+    {
+        return $this->state(["status" => Status::ACTIVE,]);
     }
 
     public function inactive(): UserFactory
