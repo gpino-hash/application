@@ -7,6 +7,11 @@ use Illuminate\Pipeline\Pipeline;
 
 abstract class AbstractPaginate
 {
+
+    public function __construct(private array $through, private array $showColumns = ["*"], private string $pageName = "page")
+    {
+    }
+
     /**
      * @return mixed
      */
@@ -14,36 +19,16 @@ abstract class AbstractPaginate
     {
         return resolve(Pipeline::class)
             ->send($this->getBuilder())
-            ->through([...$this->filter(), ...$this->sort()])
+            ->through($this->through)
             ->thenReturn()
             ->paginate(request()->input("per_page"),
-                $this->showColumns(),
-                $this->getPageName(),
+                $this->showColumns,
+                $this->pageName,
                 request()->input("page"));
     }
-
-    /**
-     * @return array
-     */
-    protected abstract function filter(): array;
-
-    /**
-     * @return array
-     */
-    protected abstract function sort(): array;
 
     /**
      * @return Builder
      */
     protected abstract function getBuilder(): Builder;
-
-    /**
-     * @return array
-     */
-    protected abstract function showColumns(): array;
-
-    /**
-     * @return string
-     */
-    protected abstract function getPageName(): string;
 }

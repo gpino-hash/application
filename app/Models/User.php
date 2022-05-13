@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Scope\ScopeDate;
+use App\Models\Scope\ScopeOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, ScopeDate;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, ScopeDate, ScopeOrder;
 
     /**
      * The attributes that are mass assignable.
@@ -75,5 +76,27 @@ class User extends Authenticatable
     public static function create(array $data): Model|Builder
     {
         return self::query()->create($data);
+    }
+
+    /** SORT */
+
+    /**
+     * @param $query
+     * @param $value
+     * @return mixed
+     */
+    public function scopeSortName($query, $value): mixed
+    {
+        return empty($value) ? $query : $query->reorder()->orderBy("name", $value);
+    }
+
+    /**
+     * @param $query
+     * @param $value
+     * @return mixed
+     */
+    public function scopeSortEmail($query, $value): mixed
+    {
+        return empty($value) ? $query : $query->reorder()->orderBy("email", $value);
     }
 }

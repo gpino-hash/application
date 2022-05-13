@@ -2,18 +2,20 @@
 
 namespace App\Pagination\Filter;
 
+use Illuminate\Database\Eloquent\Builder;
+
 class UserFilter extends Filter
 {
-    /**
-     * @return string[]
-     */
-    protected function getColumns(): array
+    private array $columns = [
+        "name",
+        "email",
+        "from",
+        "to",
+    ];
+
+    public function handle(Builder $builder, $next): mixed
     {
-        return [
-            "name",
-            "email",
-            "from",
-            "to",
-        ];
+        $this->filter($builder, $this->columns);
+        return $next($builder);
     }
 }

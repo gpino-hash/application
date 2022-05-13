@@ -13,11 +13,7 @@ trait ScopeDate
      */
     public function scopeFrom($query, $value): mixed
     {
-        if (empty($value)) {
-            return $query;
-        }
-
-        return $query->whereDate('created_at', '>=', $value);
+        return empty($value) ? $query : $query->whereDate('created_at', '>=', $value);
     }
 
     /**
@@ -27,10 +23,6 @@ trait ScopeDate
      */
     public function scopeTo($query, $value): mixed
     {
-        if (empty($value)) {
-            return $query;
-        }
-
-        return $query->whereDate('created_at', '<=', $value);
+        return empty($value) ? $query : $query->whereDate('created_at', '<=', $value);
     }
 }
