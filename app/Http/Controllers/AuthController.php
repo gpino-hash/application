@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\DataTransferObjects\UserData;
 use App\Enums\Status;
+use App\Events\Registered;
 use App\Http\Requests\AuthRequest;
 use App\Http\Requests\ForgotPasswordRequest;
 use App\Http\Requests\PasswordResetRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
 use App\UseCase\Auth\IAuthenticate;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -61,7 +63,8 @@ class AuthController extends Controller
             Log::stack(["stack"])->emergency($exception->getMessage(),
                 array_merge($request->only("username"), [$exception]));
             return $this->sendError(__("errors.error"),
-                $request->only("username"), Response::HTTP_INTERNAL_SERVER_ERROR);
+                $this->isProduction() ? [] : [$exception->getMessage()],
+                Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -72,9 +75,11 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         try {
-            $request->safe()->merge(["status" => Status::LOCKED]);
+            $request->merge(["status" => Status::LOCKED]);
+            $user = $this->authenticate->register(UserData::fromRequest($request));
+            Registered::dispatch($user);
             return $this->sendResponse(__('register.registered'),
-                ["user" => UserResource::collection($this->authenticate->register(UserData::fromRequest($request)))],
+                ["user" => new UserResource($user)],
                 Response::HTTP_CREATED);
         } catch (ModelNotFoundException $modelNotFoundException) {
             Log::stack(["stack"])->warning($modelNotFoundException->getMessage(), [$modelNotFoundException]);
@@ -84,7 +89,7 @@ class AuthController extends Controller
         } catch (Throwable $exception) {
             Log::stack(["stack"])->warning($exception->getMessage(), [$exception]);
             return $this->sendError(__("errors.error"),
-                $request->only("name", "email"),
+                $this->isProduction() ? [] : [$exception->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -101,7 +106,7 @@ class AuthController extends Controller
         } catch (Throwable $exception) {
             Log::stack(["stack"])->warning($exception->getMessage(), [$exception]);
             return $this->sendError(__("errors.error"),
-                $request->only("name", "email"),
+                $this->isProduction() ? [] : [$exception->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -118,7 +123,7 @@ class AuthController extends Controller
         } catch (Throwable $exception) {
             Log::stack(["stack"])->warning($exception->getMessage(), [$exception]);
             return $this->sendError(__("errors.error"),
-                $request->only("name", "email"),
+                $this->isProduction() ? [] : [$exception->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -130,6 +135,19 @@ class AuthController extends Controller
     public function redirect(string $socialNetwork): \Symfony\Component\HttpFoundation\RedirectResponse|RedirectResponse
     {
         return Socialite::driver($socialNetwork)->redirect();
+    }
+
+    /**
+     * @param User $user
+     * @return JsonResponse
+     */
+    public function verify(User $user): JsonResponse
+    {
+        $user->forceFill([
+            'email_verified_at' => now(),
+        ])->save();
+
+        return $this->sendResponse(['verified' => true], "");
     }
 
     /**

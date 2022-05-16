@@ -9,24 +9,29 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Address extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, GlobalModelFunctions;
+
+    public $incrementing = false;
+
+    public $primaryKey = "uuid";
 
     protected $fillable = [
         "country",
         "state",
         "city",
+        "postal_code",
         "address",
         "type",
         "tags",
         "status",
-        "user_information_id",
+        "addressable_id",
     ];
 
     /**
      * @return BelongsTo
      */
-    public function userInformation(): BelongsTo
+    public function addressable(): BelongsTo
     {
-        return $this->belongsTo(UserInformation::class);
+        return $this->morphTo();
     }
 }

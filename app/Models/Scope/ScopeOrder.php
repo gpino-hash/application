@@ -12,8 +12,8 @@ trait ScopeOrder
      * @param string $value
      * @return mixed
      */
-    public function scopeSortId($query, $value = "ASC"): mixed
+    public function scopeSortCreatedAt($query, $value = "ASC"): mixed
     {
-        return $query->reorder()->orderBy("id", $value);
+        return $query->reorder()->orderBy("created_at", $value);
     }
 }

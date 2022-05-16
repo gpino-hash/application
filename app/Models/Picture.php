@@ -4,12 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Picture extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, GlobalModelFunctions;
+
+    public $incrementing = false;
+
+    public $primaryKey = "uuid";
 
     protected $fillable = [
         "title",
@@ -17,13 +21,15 @@ class Picture extends Model
         "url",
         "thumbnail_url",
         "tags",
+        "pictureable_id",
+        "status",
     ];
 
     /**
-     * @return BelongsTo
+     * @return MorphTo
      */
-    public function userInformation(): BelongsTo
+    public function pictureable(): MorphTo
     {
-        return $this->belongsTo(UserInformation::class);
+        return $this->morphTo();
     }
 }

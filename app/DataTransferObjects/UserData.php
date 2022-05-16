@@ -29,19 +29,6 @@ class UserData extends AbstractData
     /**
      * @inheritDoc
      */
-    protected function getColumnsFilter(): array
-    {
-        return [
-            "name",
-            "email",
-            "from",
-            "to",
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
     public static function fromRequest(Request $request): self
     {
         return self::from($request->only("name", "email", "password", "status"));

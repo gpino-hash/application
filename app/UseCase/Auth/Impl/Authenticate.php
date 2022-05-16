@@ -7,7 +7,6 @@ use App\DataTransferObjects\UserData;
 use App\Enums\Status;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Notifications\ActiveUserNotification;
 use App\UseCase\Auth\IAuthenticate;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Events\PasswordReset;
@@ -44,10 +43,7 @@ class Authenticate implements IAuthenticate
      */
     public function register(UserData $data): Model|Builder
     {
-        $rememberToken = self::generate();
-        $user = User::create($data->additional(["remember_token" => $rememberToken,])->toArray());
-        $user->notify(new ActiveUserNotification($rememberToken, $data->name));
-        return $user;
+        return User::create($data->toArray());
     }
 
     /**

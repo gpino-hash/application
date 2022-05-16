@@ -25,9 +25,12 @@ class Controller extends BaseController
     {
         $response = [
             'success' => true,
-            'data' => $result,
             'message' => $message,
         ];
+
+        if (!empty($result)) {
+            $response['data'] = $result;
+        }
 
         return response()->json($response, $code);
     }
@@ -52,5 +55,13 @@ class Controller extends BaseController
         }
 
         return response()->json($response, $code);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProduction(): bool
+    {
+        return env("APP_ENV") === "prod";
     }
 }

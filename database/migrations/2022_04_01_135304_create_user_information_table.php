@@ -13,14 +13,15 @@ return new class extends Migration {
     public function up()
     {
         Schema::create('user_information', function (Blueprint $table) {
+            $table->uuid()->primary();
 
-            $table->bigInteger("id")->primary();
+            $table->bigInteger("id_number");
             $table->string("firstname");
             $table->string("lastname");
             $table->date("birthdate");
             $table->string("nationality")->nullable();
 
-            $table->foreignIdFor(\App\Models\User::class)->constrained();
+            $table->foreignUuid("user_uuid")->references('uuid')->on('users');
 
             $table->timestamps();
             $table->softDeletes();

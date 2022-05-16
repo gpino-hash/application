@@ -5,6 +5,7 @@ namespace App\Pagination;
 
 
 use App\Models\User;
+use App\Pagination\Filter\UserEmailNotVerifiedQueryFilter;
 use App\Pagination\Filter\UserFilter;
 use App\Pagination\Filter\UserSort;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,7 +18,7 @@ class UserPagination extends AbstractPaginate
      * @var array|string[]
      */
     private array $showColumns = [
-        "id",
+        "uuid",
         "name",
         "email",
         "status",
@@ -30,6 +31,7 @@ class UserPagination extends AbstractPaginate
      * @var array|string[]
      */
     private array $filters = [
+        UserEmailNotVerifiedQueryFilter::class,
         UserFilter::class,
         UserSort::class,
     ];
@@ -49,6 +51,6 @@ class UserPagination extends AbstractPaginate
      */
     protected function getBuilder(): Builder
     {
-        return User::query();
+        return User::with(["userInformation" => fn($query) => $query->with("avatar", "phone", "address")]);
     }
 }

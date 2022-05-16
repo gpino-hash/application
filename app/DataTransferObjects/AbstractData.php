@@ -15,11 +15,6 @@ abstract class AbstractData extends Data
     }
 
     /**
-     * @return array
-     */
-    abstract protected function getColumnsFilter(): array;
-
-    /**
      * @param Request $request
      * @return $this
      */
@@ -42,13 +37,5 @@ abstract class AbstractData extends Data
     public function getValue(string $key): mixed
     {
         return Arr::get($this->getAdditionalData(), $key);
-    }
-
-    public function additionalDataForPaging(): void
-    {
-        $this->additional([
-            "columns" => $this->getColumnsFilter(),
-            "model" => $this->modelType,
-        ]);
     }
 }

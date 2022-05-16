@@ -13,18 +13,17 @@ return new class extends Migration {
     public function up()
     {
         Schema::create('addresses', function (Blueprint $table) {
-            $table->id();
+            $table->uuid()->primary();
 
             $table->string("country");
-            $table->string("state");
+            $table->string("state")->nullable();
             $table->string("city");
+            $table->string("postal_code");
             $table->text("address");
-            $table->enum("type", ["house", "work", "other"]);
+            $table->enum("type", ["house", "work", "other"])->comment("type of address.");
             $table->text("tags")->nullable();
             $table->string("status");
-
-            $table->bigInteger("user_information_id");
-            $table->foreign("user_information_id")->references("id")->on("user_information");
+            $table->uuidMorphs("addressable");
 
             $table->timestamps();
             $table->softDeletes();

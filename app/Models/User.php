@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Scope\ScopeDate;
+use App\Models\Scope\GenericScope;
 use App\Models\Scope\ScopeOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +15,17 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, ScopeDate, ScopeOrder;
+    use HasApiTokens,
+        HasFactory,
+        Notifiable,
+        SoftDeletes,
+        GenericScope,
+        ScopeOrder,
+        GlobalModelFunctions;
+
+    public $incrementing = false;
+
+    public $primaryKey = "uuid";
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +38,7 @@ class User extends Authenticatable
         'password',
         'status',
         'tags',
+        'remember_token',
     ];
 
     /**
@@ -78,16 +89,29 @@ class User extends Authenticatable
         return self::query()->create($data);
     }
 
-    /** SORT */
+    /** ---------- SORT ------------- */
+
+    /**
+     * @param $query
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public function scopeGenericSortBy($query, $key, $value): mixed
+    {
+        return empty($value) ? $query : $query->reorder()->orderBy($key, $value);
+    }
+
+    /** ---------- FILTER ------------- */
 
     /**
      * @param $query
      * @param $value
      * @return mixed
      */
-    public function scopeSortName($query, $value): mixed
+    public function scopeFromEmailVerified($query, $value): mixed
     {
-        return empty($value) ? $query : $query->reorder()->orderBy("name", $value);
+        return empty($value) ? $query : $query->whereDate('created_at', '>=', $value);
     }
 
     /**
@@ -95,8 +119,23 @@ class User extends Authenticatable
      * @param $value
      * @return mixed
      */
-    public function scopeSortEmail($query, $value): mixed
+    public function scopeToEmailVerified($query, $value): mixed
     {
-        return empty($value) ? $query : $query->reorder()->orderBy("email", $value);
+        return empty($value) ? $query : $query->whereDate('created_at', '<=', $value);
+    }
+
+    /**
+     * @param $query
+     * @param $value
+     * @return mixed
+     */
+    public function scopeSearch($query, $value): mixed
+    {
+        return empty($value)
+            ? $query
+            : $query->where('name', "LIKE", "%" . $value . "%")
+                ->orWhere("email", "LIKE", "%" . $value . "%")
+                ->orWhereRelation("userInformation", "firstname", "LIKE", "%" . $value . "%")
+                ->orWhereRelation("userInformation", "lastname", "LIKE", "%" . $value . "%");
     }
 }

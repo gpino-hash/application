@@ -13,7 +13,7 @@ return new class extends Migration {
     public function up()
     {
         Schema::create('pictures', function (Blueprint $table) {
-            $table->id();
+            $table->uuid()->primary();
 
             $table->string("title");
             $table->text("description");
@@ -21,9 +21,7 @@ return new class extends Migration {
             $table->string("thumbnail_url")->nullable();
             $table->string("status");
             $table->text("tags")->nullable();
-
-            $table->bigInteger("user_information_id");
-            $table->foreign("user_information_id")->references("id")->on("user_information");
+            $table->uuidMorphs("pictureable");
 
             $table->timestamps();
             $table->softDeletes();

@@ -7,8 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 class UserFilter extends Filter
 {
     private array $columns = [
-        "name",
-        "email",
+        "search",
         "from",
         "to",
     ];

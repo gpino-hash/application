@@ -1,0 +1,27 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Http\Request;
+
+class {{ class }} extends AbstractData
+{
+    /**
+    * Construct
+    */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Transform a request to a DTO.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return self
+     */
+    protected static function fromRequest(Request $request): self
+    {
+        return self::from();
+    }
+}

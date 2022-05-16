@@ -17,14 +17,17 @@ abstract class Filter
      * @param array $columns
      * @return mixed
      */
-    public function filter(Builder $builder, array $columns): void
+    protected function filter(Builder $builder, array $columns): void
     {
         $data = request()->only($columns);
-        foreach ($data as $key => $value) {
-            if (in_array($key, $columns)) {
-                $builder->{Str::camel($key)}($value);
+        if (!empty($data)) {
+            foreach ($data as $key => $value) {
+                if (in_array($key, $columns)) {
+                    $builder->{Str::camel($key)}($value);
+                }
             }
         }
+
     }
 
     /**
@@ -32,13 +35,13 @@ abstract class Filter
      * @param array $columns
      * @return mixed
      */
-    public function sort(Builder $builder, array $columns): void
+    protected function sort(Builder $builder, array $columns): void
     {
 
         if (!request()->has("sort_by")) {
-            $builder->sortId();
+            $builder->sortCreatedAt();
         } elseif (in_array($key = request()->input("sort_by"), $columns)) {
-            $builder->{Str::camel("sort" . $key)}(request()->input("sort_dir"));
+            $builder->genericSortBy($key, request()->input("sort_dir"));
         }
     }
 }

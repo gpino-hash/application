@@ -2,28 +2,23 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class ActiveUserNotification extends Notification
+class ActiveUserNotification extends Notification implements ShouldQueue
 {
     use Queueable;
-
-    private string $token;
-
-    private string $name;
 
     /**
      * Create a new notification instance.
      *
-     * @param string $token
-     * @param string $name
+     * @param User $user
      */
-    public function __construct(string $token, string $name)
+    public function __construct(private User $user)
     {
-        $this->token = $token;
-        $this->name = $name;
     }
 
     /**
@@ -45,23 +40,10 @@ class ActiveUserNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        $url = url("/api/auth/activate/" . $this->token);
+        $url = url("/api/auth/verify/" . $this->user->uuid);
 
         return (new MailMessage)
             ->subject("Activacion de usuario")
-            ->markdown('auth.active-user', ["url" => $url, "name" => $this->name]);
-    }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param mixed $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        return [
-            //
-        ];
+            ->markdown('auth.active-user', ["url" => $url, "name" => $this->user->name]);
     }
 }

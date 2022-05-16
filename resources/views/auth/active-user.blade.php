@@ -1,13 +1,14 @@
 @component('mail::message')
+
     # Hola, {{$name}}
 
     Gracias por registrarte.
     Para poder activar su cuenta, presione el boton de abajo.
 
     @component('mail::button', ['url' => $url])
-        Activar Cuenta
+        Verificar Cuenta
     @endcomponent
 
-    Thanks,<br>
+    Gracias,
     {{ config('app.name') }}
 @endcomponent

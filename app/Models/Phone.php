@@ -4,12 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Phone extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, GlobalModelFunctions;
+
+    public $incrementing = false;
+
+    public $primaryKey = "uuid";
 
     protected $fillable = [
         "phone",
@@ -17,14 +21,14 @@ class Phone extends Model
         "operator",
         "tags",
         "status",
-        "user_information_id",
+        "phoneable_id",
     ];
 
     /**
-     * @return BelongsTo
+     * @return MorphTo
      */
-    public function userInformation(): BelongsTo
+    public function phoneable(): MorphTo
     {
-        return $this->belongsTo(UserInformation::class);
+        return $this->morphTo();
     }
 }

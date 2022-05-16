@@ -5,23 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserInformation extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, GlobalModelFunctions;
+
+    public $incrementing = false;
+
+    public $primaryKey = "uuid";
 
     protected $fillable = [
-        "id",
+        "id_number",
         "firstname",
         "lastname",
         "birthdate",
         "nationality",
         "user_id",
-        "phone_id",
-        "picture_id",
-        "address_id",
     ];
 
     /**
@@ -30,7 +31,7 @@ class UserInformation extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'id',
+        'id_number',
     ];
 
     /**
@@ -42,26 +43,26 @@ class UserInformation extends Model
     }
 
     /**
-     * @return HasOne
+     * @return MorphMany
      */
-    public function phone(): HasOne
+    public function phone(): MorphMany
     {
-        return $this->hasOne(Phone::class);
+        return $this->morphMany(Phone::class, 'phoneable');
     }
 
     /**
-     * @return HasOne
+     * @return MorphMany
      */
-    public function avatar(): HasOne
+    public function avatar(): MorphMany
     {
-        return $this->hasOne(Picture::class);
+        return $this->morphMany(Picture::class, 'pictureable');
     }
 
     /**
-     * @return HasOne
+     * @return MorphMany
      */
-    public function address(): HasOne
+    public function address(): MorphMany
     {
-        return $this->hasOne(Address::class);
+        return $this->morphMany(Address::class, "addressable");
     }
 }

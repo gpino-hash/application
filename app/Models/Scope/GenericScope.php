@@ -4,8 +4,20 @@
 namespace App\Models\Scope;
 
 
-trait ScopeDate
+trait GenericScope
 {
+
+    /**
+     * @param $query
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public function scopeGenericSearch($query, $key, $value): mixed
+    {
+        return empty($value) ? $query : $query->where($key, "LIKE", "%" . $value . "%");
+    }
+
     /**
      * @param $query
      * @param $value
