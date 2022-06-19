@@ -2,12 +2,14 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
+use App\Enums\Traits\HasValues;
 
-final class Status extends Enum
+enum Status: string
 {
-    const ACTIVE = "active";
-    const INACTIVE = "inactive";
-    const LOCKED = "locked";
-    const SLOW = "slow";
+    use HasValues;
+
+    case ACTIVE = "active";
+    case INACTIVE = "inactive";
+    case LOCKED = "locked";
+    case SLOW = "slow";
 }

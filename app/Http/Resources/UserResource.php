@@ -20,6 +20,7 @@ class UserResource extends JsonResource
     public function toArray($request): array|JsonSerializable|Arrayable
     {
         return [
+            "id" => $this->uuid,
             "email" => $this->email,
             "name" => $this->name,
             "status" => $this->status,

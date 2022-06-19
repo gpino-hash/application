@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\Status;
+use App\Models\Country;
 use App\Models\UserInformation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,7 +20,7 @@ class AddressFactory extends Factory
     public function definition()
     {
         return [
-            "country" => $this->faker->country,
+            "country_uuid" => Country::factory(),
             "state" => $this->faker->city,
             "city" => $this->faker->city,
             "address" => $this->faker->streetAddress(),

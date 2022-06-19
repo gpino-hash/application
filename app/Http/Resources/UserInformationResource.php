@@ -19,10 +19,10 @@ class UserInformationResource extends JsonResource
             "id" => $this->uuid,
             "firstname" => $this->firstname,
             "lastname" => $this->lastname,
-            "birthdate" => Carbon::make($this->birthdate)->age,
-            "avatar" => $this->avatar,
-            "phone" => $this->phone,
-            "address" => $this->address,
+            "age" => Carbon::make($this->birthdate)->age,
+            "avatar" => new PictureResource($this->avatar),
+            "phone" => new PhoneResource($this->phone),
+            "address" => new AddressResource($this->address),
         ];
     }
 }

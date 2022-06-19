@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Address extends Model
@@ -25,6 +26,7 @@ class Address extends Model
         "tags",
         "status",
         "addressable_id",
+        "country_uuid",
     ];
 
     /**
@@ -33,5 +35,13 @@ class Address extends Model
     public function addressable(): BelongsTo
     {
         return $this->morphTo();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function country(): HasMany
+    {
+        return $this->hasMany(Country::class);
     }
 }

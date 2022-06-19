@@ -3,6 +3,7 @@
 
 namespace App\DataTransferObjects;
 
+use App\Enums\Status;
 use App\Models\User;
 use Illuminate\Http\Request;
 use JetBrains\PhpStorm\Pure;
@@ -31,6 +32,9 @@ class UserData extends AbstractData
      */
     public static function fromRequest(Request $request): self
     {
+        if (!$request->has("status")) {
+            $request->merge(["status" => Status::LOCKED]);
+        }
         return self::from($request->only("name", "email", "password", "status"));
     }
 }

@@ -15,8 +15,10 @@ class CreateUserInformation
      * Create a new event instance.
      *
      * @param User $user
+     * @param bool $isAdmin
+     * @param array $data
      */
-    public function __construct(public User $user)
+    public function __construct(public User $user, public bool $isAdmin, public array $data)
     {
     }
 }

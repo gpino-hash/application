@@ -33,15 +33,17 @@ abstract class Filter
     /**
      * @param Builder $builder
      * @param array $columns
+     * @param $sortBy
+     * @param $sortDir
      * @return mixed
      */
-    protected function sort(Builder $builder, array $columns): void
+    protected function sort(Builder $builder, array $columns, mixed $sortBy, mixed $sortDir): void
     {
 
-        if (!request()->has("sort_by")) {
+        if (is_null($sortBy)) {
             $builder->sortCreatedAt();
-        } elseif (in_array($key = request()->input("sort_by"), $columns)) {
-            $builder->genericSortBy($key, request()->input("sort_dir"));
+        } elseif (in_array($sortBy, $columns)) {
+            $builder->genericSortBy($sortBy, $sortDir);
         }
     }
 }

@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Enums\UserType;
+use App\Models\Builder\UserBuilder;
 use App\Models\Scope\GenericScope;
 use App\Models\Scope\ScopeOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use JetBrains\PhpStorm\Pure;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -58,6 +60,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'type' => UserType::class,
     ];
 
     /**
@@ -68,25 +71,29 @@ class User extends Authenticatable
         return $this->hasOne(UserInformation::class);
     }
 
-    /**
-     * @param string $email
-     * @param string $status
-     * @return Model|Builder|null
-     */
-    public static function getUserByEmail(string $email, string $status): Model|Builder|null
+    public function verify(): void
     {
-        return self::query()->where("email", $email)
-            ->where("status", $status)
-            ->first();
+        self::forceFill([
+            'email_verified_at' => now(),
+        ])->save();
     }
 
     /**
-     * @param array $data
-     * @return Model|Builder
+     * @return UserBuilder|Builder
      */
-    public static function create(array $data): Model|Builder
+    public static function query(): UserBuilder|Builder
     {
-        return self::query()->create($data);
+        return parent::query();
+    }
+
+    /**
+     * @param $query
+     * @return UserBuilder
+     */
+    #[Pure]
+    public function newEloquentBuilder($query): UserBuilder
+    {
+        return new UserBuilder($query);
     }
 
     /** ---------- SORT ------------- */

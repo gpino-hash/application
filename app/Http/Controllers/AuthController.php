@@ -26,16 +26,12 @@ use Throwable;
 class AuthController extends Controller
 {
 
-    private IAuthenticate $authenticate;
-
     /**
      * AuthController constructor.
      * @param IAuthenticate $authenticate
      */
-    public function __construct(IAuthenticate $authenticate)
+    public function __construct(private IAuthenticate $authenticate)
     {
-        $this->authenticate = $authenticate;
-        $this->middleware("guest");
     }
 
     /**
@@ -55,12 +51,12 @@ class AuthController extends Controller
                 ]);
                 $data = UserData::fromRequest($request)->additional($request->only("username", "remember"));
             }
-            return $this->sendResponse($this->authenticate->login($data), __('auth.authenticated'));
+            return $this->sendResponse($this->authenticate->login($data));
         } catch (AuthenticationException $exception) {
-            Log::stack(["stack"])->warning($exception->getMessage(), [$exception]);
+            Log::warning($exception->getMessage(), [$exception]);
             return $this->sendError(__("auth.failed"));
         } catch (Throwable $exception) {
-            Log::stack(["stack"])->emergency($exception->getMessage(),
+            Log::emergency($exception->getMessage(),
                 array_merge($request->only("username"), [$exception]));
             return $this->sendError(__("errors.error"),
                 $this->isProduction() ? [] : [$exception->getMessage()],
@@ -78,16 +74,16 @@ class AuthController extends Controller
             $request->merge(["status" => Status::LOCKED]);
             $user = $this->authenticate->register(UserData::fromRequest($request));
             Registered::dispatch($user);
-            return $this->sendResponse(__('register.registered'),
-                ["user" => new UserResource($user)],
+            return $this->sendResponse(["user" => new UserResource($user)],
+                __('register.registered'),
                 Response::HTTP_CREATED);
         } catch (ModelNotFoundException $modelNotFoundException) {
-            Log::stack(["stack"])->warning($modelNotFoundException->getMessage(), [$modelNotFoundException]);
+            Log::warning($modelNotFoundException->getMessage(), [$modelNotFoundException]);
             return $this->sendError(__("register.create"),
                 $request->only("name", "email"),
                 Response::HTTP_INTERNAL_SERVER_ERROR);
         } catch (Throwable $exception) {
-            Log::stack(["stack"])->warning($exception->getMessage(), [$exception]);
+            Log::error($exception->getMessage(), [$exception]);
             return $this->sendError(__("errors.error"),
                 $this->isProduction() ? [] : [$exception->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -104,7 +100,7 @@ class AuthController extends Controller
         try {
             return $this->response($this->authenticate->forgot($request->input("email")));
         } catch (Throwable $exception) {
-            Log::stack(["stack"])->warning($exception->getMessage(), [$exception]);
+            Log::warning($exception->getMessage(), [$exception]);
             return $this->sendError(__("errors.error"),
                 $this->isProduction() ? [] : [$exception->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -121,7 +117,7 @@ class AuthController extends Controller
             $user = UserData::fromRequest($request)->additional($request->only("password_confirmation", "token"));
             return $this->response($this->authenticate->reset($user));
         } catch (Throwable $exception) {
-            Log::stack(["stack"])->warning($exception->getMessage(), [$exception]);
+            Log::error($exception->getMessage(), [$exception]);
             return $this->sendError(__("errors.error"),
                 $this->isProduction() ? [] : [$exception->getMessage()],
                 Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -143,11 +139,8 @@ class AuthController extends Controller
      */
     public function verify(User $user): JsonResponse
     {
-        $user->forceFill([
-            'email_verified_at' => now(),
-        ])->save();
-
-        return $this->sendResponse(['verified' => true], "");
+        $user->verify();
+        return $this->sendResponse(['verified' => true], __('auth.verified'));
     }
 
     /**
@@ -156,6 +149,6 @@ class AuthController extends Controller
      */
     private function response(array $data): JsonResponse
     {
-        return Arr::has($data, "status") ? $this->sendResponse("", $data) : $this->sendError("", $data);
+        return Arr::has($data, "status") ? $this->sendResponse($data) : $this->sendError($data);
     }
 }

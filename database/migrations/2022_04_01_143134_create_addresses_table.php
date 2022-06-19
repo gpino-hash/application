@@ -15,7 +15,6 @@ return new class extends Migration {
         Schema::create('addresses', function (Blueprint $table) {
             $table->uuid()->primary();
 
-            $table->string("country");
             $table->string("state")->nullable();
             $table->string("city");
             $table->string("postal_code");
@@ -24,6 +23,7 @@ return new class extends Migration {
             $table->text("tags")->nullable();
             $table->string("status");
             $table->uuidMorphs("addressable");
+            $table->foreignUuid("country_uuid")->references("uuid")->on("countries");
 
             $table->timestamps();
             $table->softDeletes();

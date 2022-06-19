@@ -43,7 +43,7 @@ class Authenticate implements IAuthenticate
      */
     public function register(UserData $data): Model|Builder
     {
-        return User::create($data->toArray());
+        return User::query()->create($data->toArray());
     }
 
     /**
@@ -126,9 +126,9 @@ class Authenticate implements IAuthenticate
     private function initialSessionBySocialNetwork(string $data, string $guardName): void
     {
         $socialMedia = Socialite::driver($data)->user();
-        $user = User::getUserByEmail($socialMedia->getEmail(), Status::ACTIVE);
+        $user = User::query()->getUserByEmail($socialMedia->getEmail(), Status::ACTIVE);
         if (empty($user)) {
-            $user = User::create([
+            $user = User::query()->create([
                 "name" => $socialMedia->getNickname(),
                 "email" => $socialMedia->getEmail(),
                 "status" => Status::ACTIVE,

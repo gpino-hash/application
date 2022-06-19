@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Pagination\Creator;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -21,8 +22,11 @@ class Controller extends BaseController
      * @param $code
      * @return JsonResponse
      */
-    public function sendResponse($result, $message, $code = Response::HTTP_OK): JsonResponse
+    public function sendResponse($result = null, $message = null, $code = Response::HTTP_OK): JsonResponse
     {
+        if (empty($message)) {
+            $message = __('response.success');
+        }
         $response = [
             'success' => true,
             'message' => $message,
@@ -51,7 +55,7 @@ class Controller extends BaseController
         ];
 
         if (!empty($errorMessages)) {
-            $response['data'] = $errorMessages;
+            $response['error'] = $errorMessages;
         }
 
         return response()->json($response, $code);
@@ -63,5 +67,14 @@ class Controller extends BaseController
     public function isProduction(): bool
     {
         return env("APP_ENV") === "prod";
+    }
+
+    /**
+     * @param Creator $creator
+     * @return mixed
+     */
+    public function paginate(Creator $creator): mixed
+    {
+        return $creator->paginate();
     }
 }

@@ -2,11 +2,9 @@
 
 namespace App\Enums;
 
-use BenSampo\Enum\Enum;
-
-final class SocialNetworkType extends Enum
+enum SocialNetworkType: string
 {
-    const GOOGLE = "google";
-    const FACEBOOK = "facebook";
-    const TWITTER = "twitter";
+    case GOOGLE = "google";
+    case FACEBOOK = "facebook";
+    case TWITTER = "twitter";
 }
