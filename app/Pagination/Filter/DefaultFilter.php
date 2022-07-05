@@ -4,7 +4,7 @@ namespace App\Pagination\Filter;
 
 use Illuminate\Database\Eloquent\Builder;
 
-class UserFilter extends Filter
+class DefaultFilter extends Filter
 {
     private array $columns = [
         "search",
@@ -12,9 +12,11 @@ class UserFilter extends Filter
         "to",
     ];
 
-    public function handle(Builder $builder, $next): mixed
+    /**
+     * @inheritDoc
+     */
+    protected function build(Builder $builder): void
     {
         $this->filter($builder, $this->columns);
-        return $next($builder);
     }
 }

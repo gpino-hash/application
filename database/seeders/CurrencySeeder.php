@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Country;
 use App\Models\Currency;
 use Illuminate\Database\Seeder;
 
@@ -22,7 +23,7 @@ class CurrencySeeder extends Seeder
             "code" => "USD",
             "decimal_places" => 2,
         ],
-        [
+        /*[
             "name" => "Euro",
             "description" => "Moneda europea",
             "symbol" => "€",
@@ -42,7 +43,7 @@ class CurrencySeeder extends Seeder
             "symbol" => '$',
             "code" => "ARS",
             "decimal_places" => 2,
-        ],
+        ],*/
     ];
 
     /**
@@ -52,8 +53,9 @@ class CurrencySeeder extends Seeder
      */
     public function run()
     {
+        $countryId = Country::query()->first()->uuid;
         foreach ($this->currencies as $currency) {
-            Currency::query()->create($currency);
+            Currency::query()->create(array_merge(["country_uuid" => $countryId], $currency));
         }
     }
 }

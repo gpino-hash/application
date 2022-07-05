@@ -2,14 +2,12 @@
 
 namespace App\Pagination;
 
-use App\Models\User;
+use App\Models\Product;
 use App\Pagination\Filter\DefaultFilter;
 use App\Pagination\Filter\StatusFilter;
-use App\Pagination\Filter\UserEmailNotVerifiedQueryFilter;
-use App\Pagination\Filter\UserSort;
 use Illuminate\Database\Eloquent\Builder;
 
-class UserPagination extends Creator
+class ProductPagination extends Creator
 {
 
     /**
@@ -17,7 +15,7 @@ class UserPagination extends Creator
      */
     public function factory(): Builder
     {
-        return User::query()->getPaginatorQuery();
+        return Product::query()->getPaginatorQuery();
     }
 
     /**
@@ -27,12 +25,13 @@ class UserPagination extends Creator
     {
         return [
             "uuid",
-            "name",
-            "email",
+            "title",
+            "description",
+            "stock",
+            "price",
             "status",
-            "email_verified_at",
-            "tags",
-            "created_at"
+            "site_uuid",
+            "created_at",
         ];
     }
 
@@ -42,10 +41,8 @@ class UserPagination extends Creator
     protected function filteredOut(): array
     {
         return [
-            UserEmailNotVerifiedQueryFilter::class,
             DefaultFilter::class,
             StatusFilter::class,
-            UserSort::class,
         ];
     }
 }

@@ -3,7 +3,6 @@
 
 namespace App\Models\Builder;
 
-
 use Illuminate\Database\Eloquent\Builder;
 
 class UserBuilder extends Builder

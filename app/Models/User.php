@@ -96,19 +96,6 @@ class User extends Authenticatable
         return new UserBuilder($query);
     }
 
-    /** ---------- SORT ------------- */
-
-    /**
-     * @param $query
-     * @param $key
-     * @param $value
-     * @return mixed
-     */
-    public function scopeGenericSortBy($query, $key, $value): mixed
-    {
-        return empty($value) ? $query : $query->reorder()->orderBy($key, $value);
-    }
-
     /** ---------- FILTER ------------- */
 
     /**

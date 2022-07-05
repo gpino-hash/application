@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Pagination\Filter;
-
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
@@ -10,7 +8,11 @@ use Illuminate\Support\Str;
 abstract class Filter
 {
 
-    public abstract function handle(Builder $builder, $next): mixed;
+    public function handle(Builder $builder, $next): mixed
+    {
+        $this->build($builder);
+        return $next($builder);
+    }
 
     /**
      * @param Builder $builder
@@ -33,8 +35,8 @@ abstract class Filter
     /**
      * @param Builder $builder
      * @param array $columns
-     * @param $sortBy
-     * @param $sortDir
+     * @param mixed $sortBy
+     * @param mixed $sortDir
      * @return mixed
      */
     protected function sort(Builder $builder, array $columns, mixed $sortBy, mixed $sortDir): void
@@ -46,4 +48,9 @@ abstract class Filter
             $builder->genericSortBy($sortBy, $sortDir);
         }
     }
+
+    /**
+     * @param Builder $builder
+     */
+    protected abstract function build(Builder $builder): void;
 }

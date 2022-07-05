@@ -4,18 +4,11 @@ namespace App\Pagination\Filter;
 
 use Illuminate\Database\Eloquent\Builder;
 
-/**
- * Class UserSort
- * @package App\Pagination\Filter
- */
-class UserSort extends Filter
+class ProductSort extends Filter
 {
     private array $columns = [
-        "name",
-        "email",
+        "title",
         "status",
-        "email_verified_at",
-        "tags",
         "created_at"
     ];
 

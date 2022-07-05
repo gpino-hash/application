@@ -20,7 +20,9 @@ return new class extends Migration {
             $table->integer("stock")->default(0);
             $table->decimal("price");
             $table->enum("status", Status::values())->default(Status::INACTIVE->value);
+
             $table->foreignUuid("site_uuid")->references("uuid")->on("sites");
+
             $table->timestamps();
             $table->softDeletes();
         });

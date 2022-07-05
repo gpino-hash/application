@@ -1,7 +1,6 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\{AuthController, ProductController, UserController,};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,4 +26,8 @@ Route::prefix("auth")->controller(AuthController::class)->group(function () {
 
 Route::prefix("admin")->middleware('auth:sanctum')->group(function () {
     Route::apiResource("user", UserController::class);
+    Route::apiResource("product", ProductController::class);
 });
+
+Route::get("products", [ProductController::class, "index"]);
+Route::get("product/{product}", [ProductController::class, "show"]);

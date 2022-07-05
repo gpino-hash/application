@@ -7,5 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderItems extends Model
 {
-    use HasFactory;
+    use HasFactory, GlobalModelFunctions;
+
+    public $incrementing = false;
+
+    public $primaryKey = "uuid";
 }

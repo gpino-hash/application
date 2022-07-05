@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Enums\Status;
-use App\Models\UserInformation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +22,6 @@ class PhoneFactory extends Factory
             "type" => $this->faker->randomElement(["residential", "personal"]),
             "operator" => $this->faker->word,
             "status" => $this->faker->randomElement([Status::ACTIVE, Status::INACTIVE]),
-            "phoneable_type" => UserInformation::class,
         ];
     }
 }

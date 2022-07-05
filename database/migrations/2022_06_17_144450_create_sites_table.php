@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string("branch_office");
             $table->string("symbol");
             $table->enum("status", Status::values())->default(Status::ACTIVE->value);
-            $table->foreignUuid("currency_uuid")->references("uuid")->on("currencies");
+            $table->foreignUuid("country_uuid")->references("uuid")->on("countries");
             $table->timestamps();
             $table->softDeletes();
         });

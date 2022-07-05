@@ -18,7 +18,11 @@ return new class extends Migration {
             $table->string("description");
             $table->string("symbol", 5);
             $table->string("code", 5);
-            $table->integer("decimal_places");
+            $table->integer("decimal_places")->default(2);
+            $table->string("decimal_separator")->default(",");
+            $table->string("thousands_separator")->default(".");
+
+            $table->foreignUuid("country_uuid")->references('uuid')->on('countries');
             $table->timestamps();
             $table->softDeletes();
         });

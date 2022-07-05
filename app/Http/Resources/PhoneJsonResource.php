@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use JetBrains\PhpStorm\ArrayShape;
 
-class AddressResource extends AbstractResource
+class PhoneJsonResource extends AbstractJsonResource
 {
 
     /**
@@ -13,8 +13,8 @@ class AddressResource extends AbstractResource
     protected function excludedAttribute(): array
     {
         return [
-            "addressable_type",
-            "addressable_id",
+            "phoneable_type",
+            "phoneable_id",
             "created_at",
             "updated_at",
             "deleted_at",

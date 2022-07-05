@@ -30,4 +30,14 @@ trait GlobalModelFunctions
     {
         return 'uuid';
     }
+
+    /**
+     * @param $query
+     * @param $value
+     * @return mixed
+     */
+    public function scopeStatus($query, $value): mixed
+    {
+        return empty($value) ? $query : $query->where('status', $value);
+    }
 }

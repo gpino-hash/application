@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Enums\Status;
-use App\Models\UserInformation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +22,6 @@ class PictureFactory extends Factory
             "description" => $this->faker->sentence(),
             "url" => $this->faker->imageUrl(),
             "status" => $this->faker->randomElement([Status::ACTIVE, Status::INACTIVE]),
-            "pictureable_type" => UserInformation::class,
         ];
     }
 }

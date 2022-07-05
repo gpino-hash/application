@@ -4,17 +4,17 @@ namespace App\Http\Resources;
 
 use JetBrains\PhpStorm\ArrayShape;
 
-class PhoneResource extends AbstractResource
+class PictureJsonResource extends AbstractJsonResource
 {
 
     /**
-     * @return string[]
+     * @inheritDoc
      */
     protected function excludedAttribute(): array
     {
         return [
-            "phoneable_type",
-            "phoneable_id",
+            "pictureable_id",
+            "pictureable_type",
             "created_at",
             "updated_at",
             "deleted_at",
@@ -24,10 +24,11 @@ class PhoneResource extends AbstractResource
     /**
      * @return string[]
      */
-    #[ArrayShape(["uuid" => "string"])]
+    #[ArrayShape(["url" => "string", "uuid" => "string"])]
     protected function keyChange(): array
     {
         return [
+            "url" => "image",
             "uuid" => "id",
         ];
     }

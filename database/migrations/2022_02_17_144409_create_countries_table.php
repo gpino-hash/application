@@ -17,8 +17,6 @@ return new class extends Migration {
             $table->uuid()->primary();
             $table->string("name");
             $table->string("code");
-            $table->string("decimalSeparator")->default(",");
-            $table->string("thousandsSeparator")->default(".");
             $table->enum("locale", Locale::values())->default(Locale::SPANISH->value);
             $table->timestamps();
             $table->softDeletes();
