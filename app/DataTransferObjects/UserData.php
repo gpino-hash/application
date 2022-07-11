@@ -19,10 +19,10 @@ class UserData extends AbstractData
      * @param Status|null $status
      */
     #[Pure]
-    public function __construct(public string|null $name = null,
-                                public string|null $email = null,
-                                public string|null $password = null,
-                                public Status|null $status = null)
+    public function __construct(public ?string $name = null,
+                                public ?string $email = null,
+                                public ?string $password = null,
+                                public ?Status $status = null)
     {
         parent::__construct(User::class);
     }

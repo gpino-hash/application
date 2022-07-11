@@ -22,6 +22,7 @@ return new class extends Migration {
             $table->enum("status", Status::values())->default(Status::INACTIVE->value);
 
             $table->foreignUuid("site_uuid")->references("uuid")->on("sites");
+            $table->foreignUuid("currency_uuid")->references("uuid")->on("currencies");
 
             $table->timestamps();
             $table->softDeletes();

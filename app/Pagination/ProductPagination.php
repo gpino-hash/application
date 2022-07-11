@@ -31,6 +31,7 @@ class ProductPagination extends Creator
             "price",
             "status",
             "site_uuid",
+            "currency_uuid",
             "created_at",
         ];
     }

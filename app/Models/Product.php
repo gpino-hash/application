@@ -27,7 +27,8 @@ class Product extends Model
         "stock",
         "price",
         "status",
-        "site_uuid"
+        "site_uuid",
+        "currency_uuid",
     ];
 
     /**
@@ -44,6 +45,14 @@ class Product extends Model
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
     }
 
     /**

@@ -12,8 +12,9 @@ class ProductBuilder extends Builder
     public function getPaginatorQuery(): static
     {
         return $this->with([
-            "site.country",
-            "picture"
+            "site.country.currencies",
+            "picture",
+            "currency",
         ]);
     }
 }

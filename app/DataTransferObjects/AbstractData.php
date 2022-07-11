@@ -10,7 +10,7 @@ use Spatie\LaravelData\Data;
 abstract class AbstractData extends Data
 {
 
-    public function __construct(private string $modelType)
+    public function __construct(private ?string $modelType)
     {
     }
 

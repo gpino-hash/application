@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\UseCase\Auth\IAuthenticate;
 use App\UseCase\Auth\Impl\Authenticate;
+use App\UseCase\Price\Impl\DefaultPrice;
+use App\UseCase\Price\Price;
 use Illuminate\Support\ServiceProvider;
 
 class UseCaseProvider extends ServiceProvider
@@ -16,5 +18,6 @@ class UseCaseProvider extends ServiceProvider
      */
     public array $bindings = [
         IAuthenticate::class => Authenticate::class,
+        Price::class => DefaultPrice::class,
     ];
 }
